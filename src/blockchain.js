@@ -189,7 +189,10 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            
+          for(let i=0; i<self.chain.length; i++){
+
+          }
+          resolve(stars)
         });
     }
 
@@ -203,7 +206,25 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            
+          try {
+            let previousBlockHash = null;
+            for(let i=0; i<self.chain.length; i++){
+              let block = self.chain[i];
+              let isValidBlock = false;
+              let validPreviousBlock = false;
+              if(block.validate()){
+                isValidBlock = true
+              }
+              if(block.previousBlockHash === previousBlockHash){
+                validPreviousBlock = true
+              }
+              previousBlockHash = block.hash
+              errorLog.push(isValidBlock && validPreviousBlock)
+            }
+            resolve(errorLog)
+          }catch (e) {
+            reject(e)
+          }
         });
     }
 

@@ -48,9 +48,9 @@ class Block {
           // Returning the Block is not valid
           // Returning the Block is valid
           if(currentBlockHash.localeCompare(recalculatedBlockHash) == 0){
-            resolve('Stuff worked!')
+            resolve(true)
           }else {
-            reject(Error('It broke'))
+            reject(false)
           }
         });
     }
