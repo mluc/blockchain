@@ -38,14 +38,20 @@ class Block {
     validate() {
         let self = this;
         return new Promise((resolve, reject) => {
-            // Save in auxiliary variable the current block hash
-                                            
-            // Recalculate the hash of the Block
-            // Comparing if the hashes changed
-            // Returning the Block is not valid
-            
-            // Returning the Block is valid
+          // Save in auxiliary variable the current block hash
+          let currentBlockHash = self.hash
 
+          // Recalculate the hash of the Block
+          let recalculatedBlockHash = SHA256(JSON.stringify(self)).toString()
+
+          // Comparing if the hashes changed
+          // Returning the Block is not valid
+          // Returning the Block is valid
+          if(currentBlockHash.localeCompare(recalculatedBlockHash) == 0){
+            resolve('Stuff worked!')
+          }else {
+            reject(Error('It broke'))
+          }
         });
     }
 
@@ -59,13 +65,28 @@ class Block {
      *     or Reject with an error.
      */
     getBData() {
-        // Getting the encoded data saved in the Block
-        // Decoding the data to retrieve the JSON representation of the object
-        // Parse the data to an object to be retrieve.
+      let self = this
+      return new Promise((resolve, reject) => {
+        let isGenesisBlock = self.previousBlockHash == null
+        if(isGenesisBlock){
+          reject(Error('This is the genesis block'))
+        } else {
+          // Getting the encoded data saved in the Block
+          let dataEncode = self.body
 
-        // Resolve with the data if the object isn't the Genesis block
+          // Decoding the data to retrieve the JSON representation of the object
+          let dataDecode = Buffer(dataEncode, 'hex')
 
-    }
+          // Parse the data to an object to be retrieve.
+          let javascriptObject = JSON.parse(dataDecode)
+
+          // Resolve with the data if the object isn't the Genesis block
+          resolve(javascriptObject)
+        }
+
+      });
+      }
+
 
 }
 
