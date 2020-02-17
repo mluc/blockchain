@@ -194,21 +194,25 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-          for(let i=1; i<self.chain.length; i++){
-            let block = self.chain[i]
-            let star = block.getBData();
-            stars.push(star)
-          }
-          Promise.all(stars).then(function (values) {
-            let my_stars = []
-            for(let i=0; i<values.length; i++){
-              let value = values[i]
-              if(value.owner === address){
-                my_stars.push(value)
-              }
+          try{
+            for(let i=1; i<self.chain.length; i++){
+              let block = self.chain[i]
+              let star = block.getBData();
+              stars.push(star)
             }
-            resolve(my_stars)
-          })
+            Promise.all(stars).then(function (values) {
+              let my_stars = []
+              for(let i=0; i<values.length; i++){
+                let value = values[i]
+                if(value.owner === address){
+                  my_stars.push(value)
+                }
+              }
+              resolve(my_stars)
+            })
+          }catch (e) {
+            reject(e)
+          }
         });
     }
 
