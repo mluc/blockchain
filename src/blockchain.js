@@ -66,8 +66,8 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
           try {
             //to check for the height to assign the `previousBlockHash`
-            if (self.height > 0) {
-              let latestBlock = self.chain[self.length]
+            if (self.height != -1) {
+              let latestBlock = self.chain[self.height]
               block.previousBlockHash = latestBlock.hash;
             }
             // UTC timestamp
@@ -126,10 +126,15 @@ class Blockchain {
           try {
             let timestamp = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
+
             //Check if the time elapsed is less than 5 minutes
             if((currentTime - timestamp) < 300){
               if(bitcoinMessage.verify(message, address, signature)){
-                let block = new BlockClass.Block({data: star});
+                let data = {
+                  "owner":address,
+                  "star": star,
+                }
+                let block = new BlockClass.Block({data: data});
                 await self._addBlock(block);
                 resolve(block)
               }else {
@@ -189,10 +194,21 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-          for(let i=0; i<self.chain.length; i++){
-
+          for(let i=1; i<self.chain.length; i++){
+            let block = self.chain[i]
+            let star = block.getBData();
+            stars.push(star)
           }
-          resolve(stars)
+          Promise.all(stars).then(function (values) {
+            let my_stars = []
+            for(let i=0; i<values.length; i++){
+              let value = values[i]
+              if(value.owner === address){
+                my_stars.push(value)
+              }
+            }
+            resolve(my_stars)
+          })
         });
     }
 
@@ -218,10 +234,13 @@ class Blockchain {
               if(block.previousBlockHash === previousBlockHash){
                 validPreviousBlock = true
               }
-              previousBlockHash = block.hash
-              errorLog.push(isValidBlock && validPreviousBlock)
+              previousBlockHash = block.hash;
+              let error = !(isValidBlock && validPreviousBlock);
+              errorLog.push(error)
             }
-            resolve(errorLog)
+            Promise.all(errorLog).then(function (values) {
+              resolve(values)
+            })
           }catch (e) {
             reject(e)
           }
