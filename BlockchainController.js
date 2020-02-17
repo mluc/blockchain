@@ -18,6 +18,7 @@ class BlockchainController {
         this.getBlockByHash();
         this.getStarsByOwner();
         this.validateBlockChain();
+        this.getHeight();
     }
 
     // Enpoint to Get a Block by Height (GET Endpoint)
@@ -128,6 +129,18 @@ class BlockchainController {
             }catch (e) {
               return res.status(500).send("An error happened!");
             }
+        });
+      }
+
+      // Enpoint to Get height of the chain (GET Endpoint)
+      getHeight() {
+        this.app.get("/height", async (req, res) => {
+          try{
+            let height = await this.blockchain.getChainHeight();
+            return res.status(200).json(height);
+          }catch (e) {
+            return res.status(500).send("An error happened!");
+          }
         });
       }
 
