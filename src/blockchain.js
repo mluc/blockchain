@@ -242,7 +242,7 @@ class Blockchain {
 
               if(!isValidBlock){
                 errorLog.push(block.hash + ': Invalid block.')
-              }else if(! validPreviousBlock){
+              }else if(!validPreviousBlock){
                 errorLog.push(block.hash + ': Invalid previous block hash.')
               }
             }
