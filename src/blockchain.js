@@ -246,9 +246,7 @@ class Blockchain {
                 errorLog.push(block.hash + ': Invalid previous block hash.')
               }
             }
-            Promise.all(errorLog).then(function (values) {
-              resolve(values)
-            })
+            resolve(errorLog)
           }catch (e) {
             reject(e)
           }
