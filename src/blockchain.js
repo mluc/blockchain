@@ -232,15 +232,21 @@ class Blockchain {
               let block = self.chain[i];
               let isValidBlock = false;
               let validPreviousBlock = false;
-              if(block.validate()){
+              if(await block.validate()){
                 isValidBlock = true
               }
               if(block.previousBlockHash === previousBlockHash){
                 validPreviousBlock = true
               }
               previousBlockHash = block.hash;
-              let error = !(isValidBlock && validPreviousBlock);
-              errorLog.push(error)
+
+              if(!isValidBlock){
+                errorLog.push('Invalid block.')
+              }else if(! validPreviousBlock){
+                errorLog.push('Invalid previous block hash.')
+              }else {
+                errorLog.push('Nothing wrong.')
+              }
             }
             Promise.all(errorLog).then(function (values) {
               resolve(values)
