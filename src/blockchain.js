@@ -241,11 +241,9 @@ class Blockchain {
               previousBlockHash = block.hash;
 
               if(!isValidBlock){
-                errorLog.push('Invalid block.')
+                errorLog.push(block.hash + ': Invalid block.')
               }else if(! validPreviousBlock){
-                errorLog.push('Invalid previous block hash.')
-              }else {
-                errorLog.push('Nothing wrong.')
+                errorLog.push(block.hash + ': Invalid previous block hash.')
               }
             }
             Promise.all(errorLog).then(function (values) {
