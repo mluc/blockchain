@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Deploy a Remix Contract</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+</head>
+
+<body>
+<div>
+    <h1>Ethereum Secret Messenger</h1>
+    <hr>
+
+    <label for="message">This site writes a secret message to the Ethereum
+        blockchain!</label>
+    <input id="userInput" type="text">
+
+    <button id="setMessageButton">Set secret message</button>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+<script>
+
+  // Connect a the web3 provider
+  if (typeof web3 !== 'undefined') {
+    web3 = new Web3(web3.currentProvider);
+  } else {
+    web3 = new Web3(new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545"));
+  }
+
+  // Set a default account
+  web3.eth.defaultAccount = web3.eth.accounts[0];
+
+  var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "string"
+        }
+      ],
+      "name": "setMessage",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getMessage",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+  var contractAddress = '0x6A3a84346d17aFf86c0DE5c08FC8c3F9B107Fde5'
+  var RemixContract = new web3.eth.Contract(abi, contractAddress);
+
+  // Get the contract address
+  //var RemixContract = new web3.eth.Contract(abi);
+
+  // Get the contract abi
+  //var myMessage = RemixContract.at(contractAddress);
+
+  RemixContract.methods.setMessage('testing').send({from:'0x40c5F88B6F0a46EeDF8645e90792e0fD6f6bF261'}).then((err, result) => {console.log(result)});
+  //RemixContract.methods.setMessage('testing').call();
+
+
+  $("#setMessageButton").click(function () {
+    //myMessage.setMessage($("#userInput").val());
+    //RemixContract.methods.setMessage($("#userInput").val());
+    //RemixContract.methods.setMessage($("#userInput").val()).send();
+    //RemixContract.methods.setMessage('testing123');
+    //RemixContract.methods.getMessage().call();
+    message = $("#userInput").val()
+    RemixContract.methods.setMessage(message).send().then((err, result)=>{message=result});
+    console.log($("#userInput").val())
+  });
+
+</script>
+</body>
+
+</html>

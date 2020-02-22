@@ -1,0 +1,25 @@
+{
+  "name": "blockchain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "ethereumjs-tx": "^2.1.2",
+    "ganache-cli": "^6.9.1",
+    "web3": "^1.2.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mluc/blockchain.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mluc/blockchain/issues"
+  },
+  "homepage": "https://github.com/mluc/blockchain#readme"
+}
