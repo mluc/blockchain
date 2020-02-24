@@ -1,4 +1,6 @@
 # Project2
+## Github link:
+https://github.com/mluc/blockchain
 ## Info:
 - Truffle v5.1.14 (core: 5.1.14)
 - openzeppelin-solidity@2.1.2
