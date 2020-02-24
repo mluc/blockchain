@@ -30,7 +30,7 @@
 
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const infuraKey = "38b222f148c74171baffe457f5766851";
-const mnemonic = 'expect either churn face potato only fury three surge kingdom expose shaft';
+const mnemonic = '';
 module.exports = {
   /**
    * Networks define how you connect to your ethereum client and let you set the
