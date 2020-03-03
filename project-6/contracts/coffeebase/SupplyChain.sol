@@ -174,6 +174,7 @@ contract SupplyChain {
   {
     // Update the appropriate fields
     items[_upc].itemState = State.Processed; // TODO: any other fields need to be updated?
+    addFarmer(items[_upc].originFarmerID);
     // Emit the appropriate event
     emit Processed(_upc);
   }
@@ -297,7 +298,7 @@ contract SupplyChain {
     originFarmLatitude = items[_upc].originFarmLatitude;
     originFarmLongitude = items[_upc].originFarmLongitude;
 
-  return 
+  return
   (
   itemSKU,
   itemUPC,
@@ -335,7 +336,7 @@ contract SupplyChain {
     retailerID = items[_upc].retailerID;
     consumerID = items[_upc].consumerID;
 
-  return 
+  return
   (
   itemSKU,
   itemUPC,
