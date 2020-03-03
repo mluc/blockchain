@@ -1,6 +1,11 @@
 pragma solidity ^0.5.16;
+
+import "../coffeeaccesscontrol/ConsumerRole.sol";
+import "../coffeeaccesscontrol/DistributorRole.sol";
+import "../coffeeaccesscontrol/FarmerRole.sol";
+import "../coffeeaccesscontrol/RetailerRole.sol";
 // Define a contract 'Supplychain'
-contract SupplyChain {
+contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole{
 
   // Define 'owner'
   address owner;
@@ -85,7 +90,8 @@ contract SupplyChain {
     _;
     uint _price = items[_upc].productPrice;
     uint amountToReturn = msg.value - _price;
-    items[_upc].consumerID.transfer(amountToReturn);
+    address payable consumerIDPayable = address(uint160(items[_upc].consumerID));
+    consumerIDPayable.transfer(amountToReturn);
   }
 
   // Define a modifier that checks if an item.state of a upc is Harvested
@@ -148,15 +154,17 @@ contract SupplyChain {
   // Define a function 'kill' if required
   function kill() public {
     if (msg.sender == owner) {
-      selfdestruct(owner);
+      address payable ownerPayable = address(uint160(owner));
+      selfdestruct(ownerPayable);
     }
   }
 
   // Define a function 'harvestItem' that allows a farmer to mark an item 'Harvested'
-  function harvestItem(uint _upc, address _originFarmerID, string _originFarmName, string _originFarmInformation, string  _originFarmLatitude, string  _originFarmLongitude, string  _productNotes) public
+  function harvestItem(uint _upc, address _originFarmerID, string memory _originFarmName, string memory _originFarmInformation, string memory _originFarmLatitude, string memory _originFarmLongitude, string memory _productNotes) public
   {
+    uint _productID = _upc; // TODO
     // Add the new item as part of Harvest
-    items[_upc] = Item({upc : _upc, itemState : State.Harvested, originFarmerID : _originFarmerID, originFarmName : _originFarmName, originFarmInformation : _originFarmInformation, originFarmLatitude : _originFarmLatitude, originFarmLongitude : _originFarmLongitude, productNotes : _productNotes});
+    items[_upc] = Item({upc : _upc, sku : _upc, itemState : State.Harvested, originFarmerID : _originFarmerID, originFarmName : _originFarmName, originFarmInformation : _originFarmInformation, originFarmLatitude : _originFarmLatitude, originFarmLongitude : _originFarmLongitude, productNotes : _productNotes, ownerID : _originFarmerID, productID : _productID, productPrice : 0, distributorID : address(0), retailerID : address(0), consumerID : address(0)});
     // Increment sku
     sku = sku + 1;
     // Emit the appropriate event
@@ -201,6 +209,7 @@ contract SupplyChain {
   {
     // Update the appropriate fields
     items[_upc].itemState = State.ForSale;
+    items[_upc].productPrice = _price;
     // Emit the appropriate event
     emit ForSale(_upc);
   }
@@ -224,7 +233,8 @@ contract SupplyChain {
     items[_upc].distributorID = buyer;
     items[_upc].itemState = State.Sold;
     // Transfer money to farmer
-    items[_upc].originFarmerID.transfer(price);
+    address payable originFarmerIDPayable = address(uint160(items[_upc].originFarmerID));
+    originFarmerIDPayable.transfer(price);
     // emit the appropriate event
     emit Sold(_upc);
   }
@@ -282,10 +292,10 @@ contract SupplyChain {
   uint    itemUPC,
   address ownerID,
   address originFarmerID,
-  string  originFarmName,
-  string  originFarmInformation,
-  string  originFarmLatitude,
-  string  originFarmLongitude
+  string memory originFarmName,
+  string memory originFarmInformation,
+  string memory originFarmLatitude,
+  string memory originFarmLongitude
   ) 
   {
   // Assign values to the 8 parameters
@@ -317,7 +327,7 @@ contract SupplyChain {
   uint    itemSKU,
   uint    itemUPC,
   uint    productID,
-  string  productNotes,
+  string memory productNotes,
   uint    productPrice,
   uint    itemState,
   address distributorID,
@@ -331,7 +341,7 @@ contract SupplyChain {
     productID = items[_upc].productID;
     productNotes = items[_upc].productNotes;
     productPrice = items[_upc].productPrice;
-    itemState = items[_upc].itemState;
+    itemState = uint(items[_upc].itemState);
     distributorID = items[_upc].distributorID;
     retailerID = items[_upc].retailerID;
     consumerID = items[_upc].consumerID;
