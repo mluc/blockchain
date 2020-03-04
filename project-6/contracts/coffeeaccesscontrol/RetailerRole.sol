@@ -50,7 +50,7 @@ contract RetailerRole {
 
   // Define an internal function '_removeRetailer' to remove this role, called by 'removeRetailer'
   function _removeRetailer(address account) internal {
-    if(retailers.has){
+    if(retailers.has(account)){
       retailers.remove(account);
       emit RetailerRemoved(account);
     }
