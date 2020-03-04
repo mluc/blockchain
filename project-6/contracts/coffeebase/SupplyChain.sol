@@ -87,7 +87,7 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
 
   // Define a modifier that checks if the paid amount is sufficient to cover the price
   modifier paidEnough(uint _price) { 
-    require(msg.sender.balance >= _price);
+    require(msg.value >= _price);
     _;
   }
   
@@ -95,7 +95,7 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
   modifier checkValue(uint _upc) {
     _;
     uint _price = items[_upc].productPrice;
-    uint amountToReturn = msg.sender.balance - _price;
+    uint amountToReturn = msg.value - _price;
     address payable senderAddressPayable = _make_payable(msg.sender);
     senderAddressPayable.transfer(amountToReturn);
   }
@@ -227,7 +227,7 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
     // Call modifer to check if buyer has paid enough
     paidEnough(items[_upc].productPrice)
     // Call modifer to send any excess ether back to buyer
-    //checkValue(_upc)
+    checkValue(_upc)
     {
       address buyer = msg.sender;
       uint price = items[_upc].productPrice;

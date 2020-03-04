@@ -186,22 +186,34 @@ contract('SupplyChain', function(accounts) {
         // Watch the emitted event Sold()
         //var event = supplyChain.Sold()
         // Mark an item as Sold by calling function buyItem()
-        var result = await supplyChain.buyItem(upc, {from: distributorID});
-        // truffleAssert.eventEmitted(result, "Sold")
-        // eventEmitted = result.logs[0].event == "Sold"
-
-      // console.log("++++ ", productPrice)
-      //
-      //   var r = await supplyChain.testing(upc, {from: distributorID});
-      //   console.log('++++ ', r)
-        
+        let balanceOfFarmerBeforeTransaction = await web3.eth.getBalance(originFarmerID);
+        let balanceOfDistributorBeforeTransaction = await web3.eth.getBalance(distributorID);
+        let balance = web3.utils.toWei("5", "ether");
+        var result = await supplyChain.buyItem(upc, {from: distributorID, value:balance});
+        truffleAssert.eventEmitted(result, "Sold")
+        eventEmitted = result.logs[0].event == "Sold"
+        let balanceOfDistributorAfterTransaction = await web3.eth.getBalance(distributorID);
+        let balanceOfFarmerAfterTransaction = await web3.eth.getBalance(originFarmerID);
+        assert.equal(Number(balanceOfDistributorBeforeTransaction)>Number(balanceOfDistributorAfterTransaction), true)
+        assert.equal(Number(balanceOfFarmerBeforeTransaction)<Number(balanceOfFarmerAfterTransaction), true)
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
-      // const resultBufferTwo = await supplyChain.fetchItemBufferTwo.call(upc)
-      // console.log("+++++++ ", resultBufferTwo)
-        
+        const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
+        const resultBufferTwo = await supplyChain.fetchItemBufferTwo.call(upc)
 
         // Verify the result set
+        assert.equal(resultBufferOne[0], sku, 'Error: Invalid item SKU')
+        assert.equal(resultBufferOne[1], upc, 'Error: Invalid item UPC')
+        assert.equal(resultBufferOne[2], distributorID, 'Error: Missing or Invalid ownerID')
+        assert.equal(resultBufferOne[3], originFarmerID, 'Error: Missing or Invalid originFarmerID')
+        assert.equal(resultBufferOne[4], originFarmName, 'Error: Missing or Invalid originFarmName')
+        assert.equal(resultBufferOne[5], originFarmInformation, 'Error: Missing or Invalid originFarmInformation')
+        assert.equal(resultBufferOne[6], originFarmLatitude, 'Error: Missing or Invalid originFarmLatitude')
+        assert.equal(resultBufferOne[7], originFarmLongitude, 'Error: Missing or Invalid originFarmLongitude')
+        assert.equal(resultBufferTwo[4], productPrice, 'Error: Invalid item Price')
+        assert.equal(resultBufferTwo[5], 4, 'Error: Invalid item State')
+        assert.equal(resultBufferTwo[6], distributorID, 'Error: Missing or Invalid distributorID')
+        assert.equal(eventEmitted, true, 'Invalid event emitted')
         
     })    
 
