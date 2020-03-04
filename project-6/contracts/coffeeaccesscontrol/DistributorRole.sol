@@ -42,13 +42,17 @@ contract DistributorRole {
 
   // Define an internal function '_addDistributor' to add this role, called by 'addDistributor'
   function _addDistributor(address account) internal {
-    distributors.add(account);
-    emit DistributorAdded(account);
+    if(!distributors.has(account)){
+      distributors.add(account);
+      emit DistributorAdded(account);
+    }
   }
 
   // Define an internal function '_removeDistributor' to remove this role, called by 'removeDistributor'
   function _removeDistributor(address account) internal {
-    distributors.remove(account);
-    emit DistributorRemoved((account));
+    if(distributors.has(account)){
+      distributors.remove(account);
+      emit DistributorRemoved((account));
+    }
   }
 }

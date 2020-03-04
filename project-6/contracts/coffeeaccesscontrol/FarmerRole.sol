@@ -42,13 +42,17 @@ contract FarmerRole {
 
   // Define an internal function '_addFarmer' to add this role, called by 'addFarmer'
   function _addFarmer(address account) internal {
-    farmers.add(account);
-    emit FarmerAdded(account);
+    if(!farmers.has(account)){
+      farmers.add(account);
+      emit FarmerAdded(account);
+    }
   }
 
   // Define an internal function '_removeFarmer' to remove this role, called by 'removeFarmer'
   function _removeFarmer(address account) internal {
-    farmers.remove(account);
-    emit FarmerRemoved(account);
+    if(farmers.has(account)){
+      farmers.remove(account);
+      emit FarmerRemoved(account);
+    }
   }
 }
