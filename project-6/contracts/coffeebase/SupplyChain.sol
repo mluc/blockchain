@@ -186,7 +186,7 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
   
   {
     // Update the appropriate fields
-    items[_upc].itemState = State.Processed; // TODO: any other fields need to be updated?
+    items[_upc].itemState = State.Processed;
     // Emit the appropriate event
     emit Processed(_upc);
   }
