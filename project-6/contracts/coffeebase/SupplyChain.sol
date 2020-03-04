@@ -4,11 +4,12 @@ import "../coffeeaccesscontrol/ConsumerRole.sol";
 import "../coffeeaccesscontrol/DistributorRole.sol";
 import "../coffeeaccesscontrol/FarmerRole.sol";
 import "../coffeeaccesscontrol/RetailerRole.sol";
+import "../coffeecore/Ownable.sol";
 // Define a contract 'Supplychain'
-contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole{
+contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole, Ownable{
 
   // Define 'owner'
-  address owner;
+  //address owner;
 
   // Define a variable called 'upc' for Universal Product Code (UPC)
   uint  upc;
@@ -68,20 +69,20 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole{
   event Purchased(uint upc);
 
   // Define a modifer that checks to see if msg.sender == owner of the contract
-  modifier onlyOwner() {
-    require(msg.sender == owner);
-    _;
-  }
+//  modifier onlyOwner() {
+//    require(msg.sender == owner);
+//    _;
+//  }
 
   // Define a modifer that verifies the Caller
   modifier verifyCaller (address _address) {
-    require(msg.sender == _address); 
+    require(msg.sender == _address);
     _;
   }
 
   // Define a modifier that checks if the paid amount is sufficient to cover the price
   modifier paidEnough(uint _price) { 
-    require(msg.value >= _price); 
+    require(msg.value >= _price);
     _;
   }
   
@@ -146,15 +147,15 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole{
   // and set 'sku' to 1
   // and set 'upc' to 1
   constructor() public payable {
-    owner = msg.sender;
+    //owner = msg.sender;
     sku = 1;
     upc = 1;
   }
 
   // Define a function 'kill' if required
   function kill() public {
-    if (msg.sender == owner) {
-      address payable ownerPayable = address(uint160(owner));
+    if (msg.sender == owner()) {
+      address payable ownerPayable = address(uint160(owner()));
       selfdestruct(ownerPayable);
     }
   }
@@ -162,14 +163,13 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole{
   // Define a function 'harvestItem' that allows a farmer to mark an item 'Harvested'
   function harvestItem(uint _upc, address _originFarmerID, string memory _originFarmName, string memory _originFarmInformation, string memory _originFarmLatitude, string memory _originFarmLongitude, string memory _productNotes) public
   {
-    uint _productID = _upc; // TODO
+    uint _productID = _upc + sku;
     // Add the new item as part of Harvest
-    items[_upc] = Item({upc : _upc, sku : _upc, itemState : State.Harvested, originFarmerID : _originFarmerID, originFarmName : _originFarmName, originFarmInformation : _originFarmInformation, originFarmLatitude : _originFarmLatitude, originFarmLongitude : _originFarmLongitude, productNotes : _productNotes, ownerID : _originFarmerID, productID : _productID, productPrice : 0, distributorID : address(0), retailerID : address(0), consumerID : address(0)});
+    items[_upc] = Item({upc : _upc, sku : sku, itemState : State.Harvested, originFarmerID : _originFarmerID, originFarmName : _originFarmName, originFarmInformation : _originFarmInformation, originFarmLatitude : _originFarmLatitude, originFarmLongitude : _originFarmLongitude, productNotes : _productNotes, ownerID : _originFarmerID, productID : _productID, productPrice : 0, distributorID : address(0), retailerID : address(0), consumerID : address(0)});
     // Increment sku
     sku = sku + 1;
     // Emit the appropriate event
     emit Harvested(_upc);
-
   }
 
   // Define a function 'processtItem' that allows a farmer to mark an item 'Processed'
@@ -182,7 +182,6 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole{
   {
     // Update the appropriate fields
     items[_upc].itemState = State.Processed; // TODO: any other fields need to be updated?
-    addFarmer(items[_upc].originFarmerID);
     // Emit the appropriate event
     emit Processed(_upc);
   }
@@ -223,20 +222,20 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole{
     // Call modifer to check if buyer has paid enough
     paidEnough(items[_upc].productPrice)
     // Call modifer to send any excess ether back to buyer
-    checkValue(_upc)
+    //checkValue(_upc)
     {
-    address buyer = msg.sender;
-    uint price = items[_upc].productPrice;
-
-    // Update the appropriate fields - ownerID, distributorID, itemState
-    items[_upc].ownerID = buyer;
-    items[_upc].distributorID = buyer;
-    items[_upc].itemState = State.Sold;
-    // Transfer money to farmer
-    address payable originFarmerIDPayable = address(uint160(items[_upc].originFarmerID));
-    originFarmerIDPayable.transfer(price);
-    // emit the appropriate event
-    emit Sold(_upc);
+//    address buyer = msg.sender;
+//    uint price = items[_upc].productPrice;
+//
+//    // Update the appropriate fields - ownerID, distributorID, itemState
+//    items[_upc].ownerID = buyer;
+//    items[_upc].distributorID = buyer;
+//    items[_upc].itemState = State.Sold;
+//    // Transfer money to farmer
+//    address payable originFarmerIDPayable = address(uint160(items[_upc].originFarmerID));
+//    originFarmerIDPayable.transfer(price);
+//    // emit the appropriate event
+//    emit Sold(_upc);
   }
 
   // Define a function 'shipItem' that allows the distributor to mark an item 'Shipped'
@@ -283,6 +282,15 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole{
       items[_upc].itemState = State.Purchased;
     // Emit the appropriate event
     emit Purchased(_upc);
+  }
+
+  function testing(uint _upc) public view returns(uint senderID){
+   senderID = items[_upc].productPrice;
+//    if(msg.value >= items[_upc].productPrice){
+//      senderID = 1;
+//    }else{
+//      senderID =0;
+//    }
   }
 
   // Define a function 'fetchItemBufferOne' that fetches the data
