@@ -190,10 +190,10 @@ contract('SupplyChain', function(accounts) {
         // truffleAssert.eventEmitted(result, "Sold")
         // eventEmitted = result.logs[0].event == "Sold"
 
-      console.log("++++ ", productPrice)
-
-        var r = await supplyChain.testing(upc, {from: distributorID});
-        console.log('++++ ', r)
+      // console.log("++++ ", productPrice)
+      //
+      //   var r = await supplyChain.testing(upc, {from: distributorID});
+      //   console.log('++++ ', r)
         
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()

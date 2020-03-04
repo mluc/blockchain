@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity >=0.4.24;
 
 import "../coffeeaccesscontrol/ConsumerRole.sol";
 import "../coffeeaccesscontrol/DistributorRole.sol";
@@ -74,6 +74,11 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
 //    _;
 //  }
 
+  // Function that allows you to convert an address into a payable address
+  function _make_payable(address x) internal pure returns (address payable) {
+    return address(uint160(x));
+  }
+
   // Define a modifer that verifies the Caller
   modifier verifyCaller (address _address) {
     require(msg.sender == _address);
@@ -82,7 +87,7 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
 
   // Define a modifier that checks if the paid amount is sufficient to cover the price
   modifier paidEnough(uint _price) { 
-    require(msg.value >= _price);
+    require(msg.sender.balance >= _price);
     _;
   }
   
@@ -90,9 +95,9 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
   modifier checkValue(uint _upc) {
     _;
     uint _price = items[_upc].productPrice;
-    uint amountToReturn = msg.value - _price;
-    address payable consumerIDPayable = address(uint160(items[_upc].consumerID));
-    consumerIDPayable.transfer(amountToReturn);
+    uint amountToReturn = msg.sender.balance - _price;
+    address payable senderAddressPayable = _make_payable(msg.sender);
+    senderAddressPayable.transfer(amountToReturn);
   }
 
   // Define a modifier that checks if an item.state of a upc is Harvested
@@ -155,7 +160,7 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
   // Define a function 'kill' if required
   function kill() public {
     if (msg.sender == owner()) {
-      address payable ownerPayable = address(uint160(owner()));
+      address payable ownerPayable = _make_payable(owner());
       selfdestruct(ownerPayable);
     }
   }
@@ -224,18 +229,18 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
     // Call modifer to send any excess ether back to buyer
     //checkValue(_upc)
     {
-//    address buyer = msg.sender;
-//    uint price = items[_upc].productPrice;
-//
-//    // Update the appropriate fields - ownerID, distributorID, itemState
-//    items[_upc].ownerID = buyer;
-//    items[_upc].distributorID = buyer;
-//    items[_upc].itemState = State.Sold;
-//    // Transfer money to farmer
-//    address payable originFarmerIDPayable = address(uint160(items[_upc].originFarmerID));
-//    originFarmerIDPayable.transfer(price);
-//    // emit the appropriate event
-//    emit Sold(_upc);
+      address buyer = msg.sender;
+      uint price = items[_upc].productPrice;
+
+      // Update the appropriate fields - ownerID, distributorID, itemState
+      items[_upc].ownerID = buyer;
+      items[_upc].distributorID = buyer;
+      items[_upc].itemState = State.Sold;
+      // Transfer money to farmer
+      address payable originFarmerIDPayable = _make_payable(items[_upc].originFarmerID);
+      originFarmerIDPayable.transfer(price);
+      // emit the appropriate event
+      emit Sold(_upc);
   }
 
   // Define a function 'shipItem' that allows the distributor to mark an item 'Shipped'
