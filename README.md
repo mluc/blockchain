@@ -1,5 +1,20 @@
 ## Project3
+### Github link 
+https://github.com/mluc/blockchain
+
+### Steps to run:
+cd project-6
+- Tab1: Launch Ganache
+   - npm install
+   - ganache-cli -m "spirit supply whale amount human item harsh scare congress discover talent hamster"
+- Tab2: smart contracts
+   - truffle compile
+   - truffle migrate
+   - truffle test
+- Tab3: client
+   - npm run dev
 ###  Deploy to RINKEBY test network
+`truffle migrate --reset --network rinkeby`
 https://rinkeby.etherscan.io/address/0xef74dd7cc72e0b020a077ebd3cd22fbfecb7d821
 
    Deploying 'FarmerRole'

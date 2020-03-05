@@ -289,15 +289,6 @@ contract SupplyChain is ConsumerRole, DistributorRole, FarmerRole, RetailerRole,
     emit Purchased(_upc);
   }
 
-  function testing(uint _upc) public view returns(uint senderID){
-   senderID = items[_upc].productPrice;
-//    if(msg.value >= items[_upc].productPrice){
-//      senderID = 1;
-//    }else{
-//      senderID =0;
-//    }
-  }
-
   // Define a function 'fetchItemBufferOne' that fetches the data
   function fetchItemBufferOne(uint _upc) public view returns 
   (
