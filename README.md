@@ -2,6 +2,9 @@
 ### Github link 
 https://github.com/mluc/blockchain
 
+### Versions:
+- Truffle v5.1.15
+
 ### Steps to run:
 cd project-6
 - Tab1: Launch Ganache
