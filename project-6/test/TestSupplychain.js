@@ -56,6 +56,7 @@ contract('SupplyChain', function(accounts) {
         // })
 
         // Mark an item as Harvested by calling function harvestItem()
+        await supplyChain.addFarmer(originFarmerID)
         var result = await supplyChain.harvestItem(upc, originFarmerID, originFarmName, originFarmInformation, originFarmLatitude, originFarmLongitude, productNotes, {from: originFarmerID})
         truffleAssert.eventEmitted(result, "Harvested")
         eventEmitted = result.logs[0].event == "Harvested"
@@ -86,6 +87,7 @@ contract('SupplyChain', function(accounts) {
         
         // Watch the emitted event Processed()
         // Mark an item as Processed by calling function processtItem()
+        await supplyChain.addFarmer(originFarmerID)
         var result = await supplyChain.processItem(upc, {from: originFarmerID});
         truffleAssert.eventEmitted(result, "Processed")
         eventEmitted = result.logs[0].event == "Processed"
@@ -119,6 +121,7 @@ contract('SupplyChain', function(accounts) {
         
         // Watch the emitted event Packed()
         // Mark an item as Packed by calling function packItem()
+        await supplyChain.addFarmer(originFarmerID)
         var result = await supplyChain.packItem(upc, {from: originFarmerID});
         truffleAssert.eventEmitted(result, "Packed")
         eventEmitted = result.logs[0].event == "Packed"
@@ -151,6 +154,7 @@ contract('SupplyChain', function(accounts) {
         
         // Watch the emitted event ForSale()
         // Mark an item as ForSale by calling function sellItem()
+        await supplyChain.addFarmer(originFarmerID)
         var result = await supplyChain.sellItem(upc, productPrice, {from: originFarmerID});
         truffleAssert.eventEmitted(result, "ForSale")
         eventEmitted = result.logs[0].event == "ForSale"
@@ -190,6 +194,7 @@ contract('SupplyChain', function(accounts) {
         let balanceOfDistributorBeforeTransaction = await web3.eth.getBalance(distributorID);
 
         let balance = web3.utils.toWei("5", "ether");
+        await supplyChain.addDistributor(distributorID)
         var result = await supplyChain.buyItem(upc, {from: distributorID, value:balance});
         truffleAssert.eventEmitted(result, "Sold")
         eventEmitted = result.logs[0].event == "Sold"
@@ -229,6 +234,7 @@ contract('SupplyChain', function(accounts) {
         
         // Watch the emitted event Shipped()
         // Mark an item as Sold by calling function buyItem()
+        await supplyChain.addDistributor(distributorID)
         var result = await supplyChain.shipItem(upc, {from: distributorID});
         truffleAssert.eventEmitted(result, "Shipped")
         eventEmitted = result.logs[0].event == "Shipped"
