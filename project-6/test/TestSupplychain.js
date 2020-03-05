@@ -56,7 +56,7 @@ contract('SupplyChain', function(accounts) {
         // })
 
         // Mark an item as Harvested by calling function harvestItem()
-        var result = await supplyChain.harvestItem(upc, originFarmerID, originFarmName, originFarmInformation, originFarmLatitude, originFarmLongitude, productNotes)
+        var result = await supplyChain.harvestItem(upc, originFarmerID, originFarmName, originFarmInformation, originFarmLatitude, originFarmLongitude, productNotes, {from: originFarmerID})
         truffleAssert.eventEmitted(result, "Harvested")
         eventEmitted = result.logs[0].event == "Harvested"
 
