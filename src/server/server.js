@@ -24,6 +24,8 @@ app.get('/api', (req, res) => {
     })
 })
 
+// TODO: add endpoints to return list of flights and add drop down to UI
+
 export default app;
 
 
