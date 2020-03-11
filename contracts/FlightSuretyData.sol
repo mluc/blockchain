@@ -13,6 +13,7 @@ contract FlightSuretyData {
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
 
     uint256 public constant REGISTRATION_FEE = 10000000000000000000; // 10 either
+    uint256 public constant CONSENSUS_PERCENTAGE = 50;
 
     struct AirlineProfile{
         bool isRegistered;
@@ -211,8 +212,7 @@ contract FlightSuretyData {
                 require(!isDuplicate, "Caller has already voted this airline.");
 
                 uint256 newVoteCount=airlines[airlineAddress].voteCount+1;
-                uint256 RESPONSES_PERCENTAGE = 50; //private constance
-                bool canBeRegistered = newVoteCount >= (registeredAirlineCount * RESPONSES_PERCENTAGE / 100);
+                bool canBeRegistered = newVoteCount >= (registeredAirlineCount * CONSENSUS_PERCENTAGE / 100);
                 if(canBeRegistered){
                     registeredAirlineCount = registeredAirlineCount +1;
                 }
