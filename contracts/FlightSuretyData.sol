@@ -17,13 +17,17 @@ contract FlightSuretyData {
     struct AirlineProfile{
         bool isRegistered;
         bool isFundSubmitted;
+        uint256 voteCount;
+        address[] votedAirlines;
     }
     mapping(address => AirlineProfile) airlines;
-    uint256 private activeAirlineCount=0;
+    uint256 private registeredAirlineCount =0;
 
     mapping(address => uint256) private authorizedContracts;
 
     uint256 internal balances;
+    uint256 internal test;
+
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -41,7 +45,8 @@ contract FlightSuretyData {
                                 public 
     {
         contractOwner = msg.sender;
-        airlines[firstAirline] = AirlineProfile({isRegistered: true, isFundSubmitted:false});
+        airlines[firstAirline] = AirlineProfile({isRegistered: true, isFundSubmitted:false, voteCount:1, votedAirlines:new address[](0)});
+        registeredAirlineCount = registeredAirlineCount +1;
     }
 
     /********************************************************************************************/
@@ -94,11 +99,12 @@ contract FlightSuretyData {
     function testing()
         public
         view
-        returns(address)
+        returns(uint256)
 
     {
-        return tx.origin;
+        return test;
     }
+
     /**
     * @dev Get operating status of contract
     *
@@ -183,13 +189,44 @@ contract FlightSuretyData {
                                 address airlineAddress
                             )
                             external
-                            //pure //TODO: remove
                             requireIsCallerAuthorized
                             requireIsOperational
                             requireIsActiveAirline
     {
         require(!airlines[airlineAddress].isRegistered, "airline is already registered.");
-        airlines[airlineAddress] = AirlineProfile({isRegistered: true, isFundSubmitted:false});
+
+        if(registeredAirlineCount <4){
+            airlines[airlineAddress] = AirlineProfile({isRegistered: true, isFundSubmitted:false, voteCount:1,votedAirlines:new address[](0)});
+            registeredAirlineCount = registeredAirlineCount +1;
+        }else{
+            if(airlines[airlineAddress].voteCount > 0){
+                //check duplicate votes
+                bool isDuplicate = false;
+                for(uint c=0; c<airlines[airlineAddress].votedAirlines.length; c++) {
+                    if (airlines[airlineAddress].votedAirlines[c] == tx.origin) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+                require(!isDuplicate, "Caller has already voted this airline.");
+
+                uint256 newVoteCount=airlines[airlineAddress].voteCount+1;
+                uint256 RESPONSES_PERCENTAGE = 50; //private constance
+                bool canBeRegistered = newVoteCount >= (registeredAirlineCount * RESPONSES_PERCENTAGE / 100);
+                if(canBeRegistered){
+                    registeredAirlineCount = registeredAirlineCount +1;
+                }
+                airlines[airlineAddress].isRegistered=canBeRegistered;
+                airlines[airlineAddress].voteCount=newVoteCount;
+                airlines[airlineAddress].votedAirlines.push(tx.origin);
+            }else{
+                //first vote
+                airlines[airlineAddress] = AirlineProfile({isRegistered: false, isFundSubmitted:false, voteCount:1, votedAirlines:new address[](0)});
+                airlines[airlineAddress].votedAirlines.push(tx.origin);
+            }
+
+        }
+
     }
 
 
@@ -255,7 +292,6 @@ contract FlightSuretyData {
 //        senderAddressPayable.transfer(amountToReturn);
         msg.sender.transfer(amountToReturn);
         airlines[msg.sender].isFundSubmitted=true;
-        activeAirlineCount = activeAirlineCount +1;
     }
 
     function getFlightKey

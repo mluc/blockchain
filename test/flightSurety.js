@@ -9,8 +9,9 @@ contract('Flight Surety Tests', async (accounts) => {
     await config.flightSuretyData.authorizeContract(config.flightSuretyApp.address,{from: config.owner});
     // let r = await config.flightSuretyData.testing(config.firstAirline);
     // console.log('RRRR ', r);
-  });
 
+
+  });
 
 
   /****************************************************************************************/
@@ -102,6 +103,47 @@ contract('Flight Surety Tests', async (accounts) => {
         await config.flightSuretyApp.registerAirline(newAirline, {from: config.firstAirline});
         let result = await config.flightSuretyData.isAirlineRegistered.call(newAirline);
         assert.equal(result, true, "Airline should be able to register another airline since its fund is submitted");
+
+    });
+    it('Existing airline can register a new airline until there are at least 4 airlines registered', async () => {
+        let airline3 = accounts[3];
+        let airline4 = accounts[4];
+        let airline5 = accounts[5];
+        await config.flightSuretyApp.registerAirline(airline3, {from: config.firstAirline});
+        await config.flightSuretyApp.registerAirline(airline4, {from: config.firstAirline});
+        await config.flightSuretyApp.registerAirline(airline5, {from: config.firstAirline});
+
+        let result = await config.flightSuretyData.isAirlineRegistered.call(airline3);
+        assert.equal(result, true, "The 3rd airline should be registered");
+        result = await config.flightSuretyData.isAirlineRegistered.call(airline4);
+        assert.equal(result, true, "The 4th airline should be registered");
+        result = await config.flightSuretyData.isAirlineRegistered.call(airline5);
+        assert.equal(result, false, "The 5th airline should not be registered");
+
+    });
+
+    it('Airline cannot vote for another airline more than once', async () => {
+        let isDup = false;
+        let airline5 = accounts[5];
+        try{
+            await config.flightSuretyApp.registerAirline(airline5, {from: config.firstAirline});
+        }catch (e) {
+            isDup=true;
+        }
+        assert.equal(isDup, true, "Airline cannot vote for another airline more than once");
+    });
+
+    it('Registration of the 5th airline requires multi-party consensus of 50%', async () => {
+
+        let newAirline = accounts[2];
+        let value = web3.utils.toWei("10", "ether");
+        await config.flightSuretyData.fund({from:newAirline, value:value});
+
+        let airline5 = accounts[5];
+        await config.flightSuretyApp.registerAirline(airline5, {from: newAirline});
+
+        let result = await config.flightSuretyData.isAirlineRegistered.call(airline5);
+        assert.equal(result, true, "The 5th airline should be registered with 50% vote count");
 
     });
 
