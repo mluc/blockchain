@@ -345,7 +345,7 @@ contract FlightSuretyData {
     {
 
         Passenger[] passengers = flightToPassengers[flightKey];
-        address passengerAddresspassengerAddress = tx.origin;
+        address passengerAddress = tx.origin;
         for(uint c=0; c<passengers.length; c++) {
             if (passengers[c].passengerAddress == passengerAddress) {
                 require(!passengers[c].isPaid, 'this passenger is already paid');
