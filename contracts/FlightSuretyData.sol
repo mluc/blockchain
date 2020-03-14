@@ -12,8 +12,6 @@ contract FlightSuretyData {
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
 
-    uint256 public constant REGISTRATION_FEE = 10000000000000000000; // 10 either
-    uint256 public constant CONSENSUS_PERCENTAGE = 50;
 
     struct AirlineProfile{
         bool isRegistered;
@@ -27,7 +25,16 @@ contract FlightSuretyData {
     mapping(address => uint256) private authorizedContracts;
 
     uint256 internal balances;
-    uint256 internal test;
+    uint256[] internal test;
+
+    struct Passenger{
+        address passengerAddress;
+        uint256 insurance;
+        uint256 payout;
+        bool isCredited;
+        bool isPaid;
+    }
+    mapping(bytes32=>Passenger[]) flightToPassengers;
 
 
     /********************************************************************************************/
@@ -83,24 +90,24 @@ contract FlightSuretyData {
         _;
     }
 
-    modifier requireIsRegisteredAirline()
-    {
-        require(airlines[msg.sender].isRegistered, "Caller is not a register airline");
-        _;
-    }
-
-    modifier requireIsActiveAirline()
-    {
-        require(airlines[tx.origin].isFundSubmitted, "Original caller is not an active airline");
-        _;
-    }
+//    modifier requireIsRegisteredAirline()
+//    {
+//        require(airlines[msg.sender].isRegistered, "Caller is not a register airline");
+//        _;
+//    }
+//
+//    modifier requireIsActiveAirline()
+//    {
+//        require(airlines[tx.origin].isFundSubmitted, "Original caller is not an active airline");
+//        _;
+//    }
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
     function testing()
         public
         view
-        returns(uint256)
+        returns(uint256[])
 
     {
         return test;
@@ -141,6 +148,7 @@ contract FlightSuretyData {
     function isAirlineActive(address airlineAddress)
         external
         view
+        requireIsCallerAuthorized
         returns(bool)
     {
         return airlines[airlineAddress].isFundSubmitted;
@@ -169,6 +177,43 @@ contract FlightSuretyData {
         delete authorizedContracts[contractAddress];
     }
 
+    function insuranceAmount(address airline, string flight, uint256 timestamp, address passengerAddress)
+        external
+        view
+        requireContractOwner
+        returns(uint256 insuranceAmount, uint256 payoutAmount)
+    {
+        bytes32 flightKey = keccak256(abi.encodePacked(airline, flight, timestamp));
+        Passenger[] passengers = flightToPassengers[flightKey];
+        insuranceAmount=0;
+        payoutAmount=0;
+        for(uint c=0; c<passengers.length; c++) {
+            if (passengers[c].passengerAddress == passengerAddress) {
+                insuranceAmount = passengers[c].insurance;
+                payoutAmount = passengers[c].payout;
+                break;
+            }
+        }
+    }
+
+    function isPassengerCredited(address airline, string flight, uint256 timestamp, address passengerAddress)
+        external
+        view
+        requireContractOwner
+        returns(bool isPassengerCredited)
+    {
+        bytes32 flightKey = keccak256(abi.encodePacked(airline, flight, timestamp));
+        Passenger[] passengers = flightToPassengers[flightKey];
+        isPassengerCredited = false;
+        for(uint c=0; c<passengers.length; c++) {
+            if (passengers[c].passengerAddress == passengerAddress) {
+                isPassengerCredited = passengers[c].isCredited;
+                break;
+            }
+        }
+    }
+
+
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
@@ -187,13 +232,15 @@ contract FlightSuretyData {
     *
     */   
     function registerAirline(
-                                address airlineAddress
+                                address airlineAddress,
+                                uint256 concensusPercentage
                             )
                             external
                             requireIsCallerAuthorized
                             requireIsOperational
-                            requireIsActiveAirline
+                            //requireIsActiveAirline
     {
+        require(airlines[tx.origin].isFundSubmitted, "Original caller is not an active airline");
         require(!airlines[airlineAddress].isRegistered, "airline is already registered.");
 
         if(registeredAirlineCount <4){
@@ -212,7 +259,7 @@ contract FlightSuretyData {
                 require(!isDuplicate, "Caller has already voted this airline.");
 
                 uint256 newVoteCount=airlines[airlineAddress].voteCount+1;
-                bool canBeRegistered = newVoteCount >= (registeredAirlineCount * CONSENSUS_PERCENTAGE / 100);
+                bool canBeRegistered = newVoteCount >= (registeredAirlineCount * concensusPercentage / 100);
                 if(canBeRegistered){
                     registeredAirlineCount = registeredAirlineCount +1;
                 }
@@ -229,19 +276,23 @@ contract FlightSuretyData {
 
     }
 
-
    /**
     * @dev Buy insurance for a flight
     *
     */   
     function buy
-                            (                             
+                            (
+                                bytes32 flightKey,
+                                uint256 insuranceAmount,
+                                uint256 payoutAmount
                             )
                             external
                             payable
                             requireIsOperational
+                            requireIsCallerAuthorized
     {
-
+        Passenger[] passengers = flightToPassengers[flightKey];
+        passengers.push(Passenger({passengerAddress : tx.origin, insurance : insuranceAmount, payout : payoutAmount, isCredited : false, isPaid : false}));
     }
 
     /**
@@ -249,12 +300,17 @@ contract FlightSuretyData {
     */
     function creditInsurees
                                 (
+                                    bytes32 flightKey
                                 )
                                 external
                                 //pure
                                 requireIsOperational
     {
-        //TODO: don't fund directly, credit the user, then pay themself
+        //TODO: don't fund directly, credit ^ the user here first, then pay them (function below)
+        Passenger[] passengers = flightToPassengers[flightKey];
+        for(uint c=0; c<passengers.length; c++) {
+            passengers[c].isCredited = true;
+        }
     }
     
 
@@ -276,22 +332,19 @@ contract FlightSuretyData {
     *      resulting in insurance payouts, the contract should be self-sustaining
     *
     */   
-    function fund
-                            (
-                            )
+    function fund(uint256 airlineRegistrationFree, uint256 msgValue)
                             public
                             payable
                             requireIsOperational
-                            requireIsRegisteredAirline
+                            //requireIsRegisteredAirline
     {
-        //TODO: airline used to activate itself, airline goes to 2 steps: register, fund. If after 4th airline, need to wait to be voted in, then "fund" 10 eth
-        require(msg.value >= REGISTRATION_FEE);
-        balances = balances.add(REGISTRATION_FEE);
-        uint amountToReturn = msg.value - REGISTRATION_FEE;
-//        address payable senderAddressPayable = _make_payable(msg.sender);
-//        senderAddressPayable.transfer(amountToReturn);
-        msg.sender.transfer(amountToReturn);
-        airlines[msg.sender].isFundSubmitted=true;
+        require(airlines[tx.origin].isRegistered, "Caller is not a register airline");
+//        //TODO: airline used to activate itself, airline goes to 2 steps: register, fund. If after 4th airline, need to wait to be voted in, then "fund" 10 eth
+        require(msgValue >= airlineRegistrationFree);
+        balances = balances.add(airlineRegistrationFree);
+        uint amountToReturn = msgValue - airlineRegistrationFree;
+        tx.origin.transfer(amountToReturn);
+        airlines[tx.origin].isFundSubmitted=true;
     }
 
     function getFlightKey
@@ -316,7 +369,8 @@ contract FlightSuretyData {
                             payable
                             requireIsOperational
     {
-        fund();
+
+        //fund();
     }
 
 

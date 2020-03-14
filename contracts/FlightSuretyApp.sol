@@ -1,4 +1,4 @@
-pragma solidity >=0.4.25;
+pragma solidity ^0.4.25;
 
 // It's important to avoid vulnerabilities due to numeric overflow bugs
 // OpenZeppelin's SafeMath library, when used correctly, protects agains such bugs
@@ -35,6 +35,23 @@ contract FlightSuretyApp {
     mapping(bytes32 => Flight) private flights;
 
     FlightSuretyData flightSuretyData;
+
+    uint256 public constant CONSENSUS_PERCENTAGE = 50;
+    uint256 public constant AIRLINE_REGISTRATION_FEE = 10000000000000000000; // 10 either
+    uint256 public constant PAYOUT_PERCENTAGE = 150;
+    uint256 public constant INSURANCE_MAX = 1000000000000000000; // 1 either
+
+
+    bytes32 test2;
+    function testing2()
+    public
+    view
+    returns(bytes32)
+
+    {
+
+        return test2;
+    }
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -113,7 +130,7 @@ contract FlightSuretyApp {
                             requireIsOperational
                             returns(bool success, uint256 votes)
     {
-        flightSuretyData.registerAirline(airlineAddress); //TODO
+        flightSuretyData.registerAirline(airlineAddress, CONSENSUS_PERCENTAGE); //TODO
         return (success, 0);
     }
 
@@ -124,16 +141,33 @@ contract FlightSuretyApp {
     */  
     function registerFlight
                                 (
+                                    string flight,
+                                    uint256 timestamp
                                 )
                                 external
                                 //pure
                                 requireIsOperational
     {
+        address airlineAddress = msg.sender;
+        require(flightSuretyData.isAirlineActive(airlineAddress), 'only active airline can register flights');
         //TODO: it can be list of flights user can choose( hard coded).
         //Do this if you want to be more challenge: register a flight and then retrieve a list of flights that are registered when the user ready make a selection from UI.
         // Flights has timestamp, only show flights for the future
+        bytes32 key = keccak256(abi.encodePacked(airlineAddress, flight, timestamp));
+        flights[key] = Flight({isRegistered:true, statusCode:STATUS_CODE_UNKNOWN, updatedTimestamp:timestamp, airline:airlineAddress});
+
     }
-    
+
+    function isFlightRegistered(address airline, string flight, uint256 timestamp)
+        external
+        view
+        requireContractOwner
+        returns(bool isFlightRegistered)
+    {
+        bytes32 key = keccak256(abi.encodePacked(airline, flight, timestamp));
+        isFlightRegistered=flights[key].isRegistered;
+    }
+
    /**
     * @dev Called after oracle has updated flight status
     *
@@ -149,8 +183,14 @@ contract FlightSuretyApp {
                                 //pure
                                 requireIsOperational
     {
-        //TODO: triggered when oracle come back with result, and it decide where thing goes: react to 20, look for passager with that flights, start how much to pay
+        //TODO: triggered when oracle come back with result, and it decide where thing goes: if statusCode not 20, noop, if statusCode 20, look for passengers with that flights + purchase insurance, start the process of how much they should be paid
+
+        if(statusCode==STATUS_CODE_LATE_AIRLINE){
+            bytes32 flightKey = getFlightKey(airline,flight,timestamp);
+            flightSuretyData.creditInsurees(flightKey);
+        }
     }
+
 
     //TODO: a button clicked on the client
     // Generate a request for oracles to fetch flight information
@@ -158,7 +198,7 @@ contract FlightSuretyApp {
                         (
                             address airline,
                             string flight,
-                            uint256 timestamp                            
+                            uint256 timestamp
                         )
                         external
                         requireIsOperational
@@ -171,9 +211,43 @@ contract FlightSuretyApp {
                                                 requester: msg.sender,
                                                 isOpen: true
                                             });
-
         emit OracleRequest(index, airline, flight, timestamp);
-    } 
+    }
+
+    function calculatePayout
+        (
+            uint256 insurance
+        )
+        internal
+        pure
+        returns(uint256)
+    {
+        return insurance.mul(PAYOUT_PERCENTAGE).div(100);
+    }
+
+    function buyInsurance
+        (
+            address airline,
+            string flight,
+            uint256 timestamp
+        )
+        external
+        payable
+        requireIsOperational
+    {
+        require(msg.value <= INSURANCE_MAX, 'max insurance amount is 1 ether');
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        uint256 payout = calculatePayout(msg.value);
+        flightSuretyData.buy(flightKey, msg.value, payout);
+    }
+
+    function airlineFund()
+        public
+        payable
+    requireIsOperational
+    {
+        flightSuretyData.fund(AIRLINE_REGISTRATION_FEE, msg.value);
+    }
 
 
 // region ORACLE MANAGEMENT
@@ -195,22 +269,22 @@ contract FlightSuretyApp {
 
     // Track all registered oracles
     mapping(address => Oracle) private oracles;
-
     // Model for responses from oracles
     struct ResponseInfo {
         address requester;                              // Account that requested status
         bool isOpen;                                    // If open, oracle responses are accepted
         mapping(uint8 => address[]) responses;          // Mapping key is the status code reported
-                                                        // This lets us group responses and identify
-                                                        // the response that majority of the oracles
+        // This lets us group responses and identify
+        // the response that majority of the oracles
     }
+
 
     // Track all oracle responses
     // Key = hash(index, flight, timestamp)
     mapping(bytes32 => ResponseInfo) private oracleResponses;
 
     // Event fired each time an oracle submits a response
-    event FlightStatusInfo(address airline, string flight, uint256 timestamp, uint8 status);
+    event FlightStatusInfo(address airline, string flight, uint256 timestamp, uint8 status, bool verified);
 
     event OracleReport(address airline, string flight, uint256 timestamp, uint8 status);
 
@@ -268,11 +342,15 @@ contract FlightSuretyApp {
                         )
                         external
     {
+
         require((oracles[msg.sender].indexes[0] == index) || (oracles[msg.sender].indexes[1] == index) || (oracles[msg.sender].indexes[2] == index), "Index does not match oracle request");
 
+        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
 
-        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp)); 
         require(oracleResponses[key].isOpen, "Flight or timestamp do not match oracle request");
+
+        bytes32 flightKey = keccak256(abi.encodePacked(airline, flight, timestamp));
+        require(flights[flightKey].isRegistered, "Flight is not registered");
 
         oracleResponses[key].responses[statusCode].push(msg.sender);
 
@@ -280,14 +358,38 @@ contract FlightSuretyApp {
         // oracles respond with the *** same *** information
         emit OracleReport(airline, flight, timestamp, statusCode);
         if (oracleResponses[key].responses[statusCode].length >= MIN_RESPONSES) {
+            //Prevent any more responses since MIN_RESPONSE threshold has been reached
+            oracleResponses[key].isOpen = false;
+            //Announce to the world that verified flight status information is available
+            emit FlightStatusInfo(airline, flight, timestamp, statusCode, true);
 
-            emit FlightStatusInfo(airline, flight, timestamp, statusCode);
+            // Save the flight information for posterity
+            flights[flightKey].statusCode = statusCode;
 
             // Handle flight status as appropriate
             processFlightStatus(airline, flight, timestamp, statusCode);
+        }else{
+            emit FlightStatusInfo(airline, flight, timestamp, statusCode, false);
         }
     }
 
+
+    function viewFlightStatus
+    (
+        address airline,
+        string flight,
+        uint256 timestamp
+    )
+    external
+    view
+    returns(uint8)
+    {
+        bytes32 key = keccak256(abi.encodePacked(airline, flight, timestamp));
+        require(flights[key].statusCode != STATUS_CODE_UNKNOWN, "Flight status not available");
+
+        return flights[key].statusCode;
+
+    }
 
     function getFlightKey
                         (
@@ -297,7 +399,7 @@ contract FlightSuretyApp {
                         )
                         pure
                         internal
-                        returns(bytes32) 
+                        returns(bytes32)
     {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
     }
@@ -346,11 +448,27 @@ contract FlightSuretyApp {
         return random;
     }
 
+    function testing()
+        public
+        view
+        returns(uint8 a, uint8 b, uint8 c)
+
+    {
+    a=oracles[msg.sender].indexes[0];
+    b=oracles[msg.sender].indexes[1];
+    c=oracles[msg.sender].indexes[2];
+    }
+
+
 // endregion
 
-}   
+}
 
 contract FlightSuretyData{
     function isOperational() public view returns(bool);
-    function registerAirline(address airlineAddress) external;
+    function registerAirline(address airlineAddress, uint256 concensusPercentage) external;
+    function buy(bytes32 flightKey, uint256 insuranceAmount, uint256 payoutAmount) external payable;
+    function fund(uint256 airlineRegistrationFree, uint256 msgValue) public payable;
+    function creditInsurees(bytes32 flightKey) external;
+    function isAirlineActive(address airlineAddress) external view returns(bool);
 }

@@ -93,8 +93,8 @@ contract('Flight Surety Tests', async (accounts) => {
   });
 
     it('(airline) is able to register an Airline using registerAirline() when it is funded', async () => {
-        let value = web3.utils.toWei("10", "ether");
-        await config.flightSuretyData.fund({from:config.firstAirline, value:value});
+        let value = await config.flightSuretyApp.AIRLINE_REGISTRATION_FEE.call();
+        await config.flightSuretyApp.airlineFund({from:config.firstAirline, value:value});
 
         let isActive = await config.flightSuretyData.isAirlineActive.call(config.firstAirline)
         assert.equal(isActive, true, "The first airline should be active since its fund is submitted");
@@ -136,8 +136,11 @@ contract('Flight Surety Tests', async (accounts) => {
     it('Registration of the 5th airline requires multi-party consensus of 50%', async () => {
 
         let newAirline = accounts[2];
-        let value = web3.utils.toWei("10", "ether");
-        await config.flightSuretyData.fund({from:newAirline, value:value});
+        let value = await config.flightSuretyApp.AIRLINE_REGISTRATION_FEE.call();
+        await config.flightSuretyApp.airlineFund({from:newAirline, value:value});
+
+        let isActive = await config.flightSuretyData.isAirlineActive.call(newAirline)
+        assert.equal(isActive, true, "The newAirline should be active since its fund is submitted");
 
         let airline5 = accounts[5];
         await config.flightSuretyApp.registerAirline(airline5, {from: newAirline});
