@@ -7,10 +7,11 @@ contract('Flight Surety Tests', async (accounts) => {
   before('setup contract', async () => {
     config = await Test.Config(accounts);
     await config.flightSuretyData.authorizeContract(config.flightSuretyApp.address,{from: config.owner});
-    // let r = await config.flightSuretyData.testing(config.firstAirline);
-    // console.log('RRRR ', r);
 
-
+    // let value = web3.utils.toWei("3", "ether");
+    // await config.flightSuretyApp.transferEther({value:value});
+    // let r = await config.flightSuretyData.testing();
+    // console.log('RRRR ', Number(r));
   });
 
 
@@ -23,8 +24,6 @@ contract('Flight Surety Tests', async (accounts) => {
     // Get operating status
     let status = await config.flightSuretyData.isOperational.call();
     assert.equal(status, true, "Incorrect initial operating status value");
-
-
   });
 
   it(`(multiparty) can block access to setOperatingStatus() for non-Contract Owner account`, async function () {

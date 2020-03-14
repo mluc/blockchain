@@ -237,6 +237,8 @@ contract FlightSuretyApp {
     {
         require(msg.value <= INSURANCE_MAX, 'max insurance amount is 1 ether');
         require(msg.value > 0, 'insurance amount cannot <= 0');
+        address(flightSuretyData).transfer(msg.value);
+
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
         uint256 payout = calculatePayout(msg.value);
         flightSuretyData.buy(flightKey, msg.value, payout);
@@ -248,10 +250,9 @@ contract FlightSuretyApp {
     requireIsOperational
     {
         require(msg.value >= AIRLINE_REGISTRATION_FEE, 'airline registration fee is 10 ether');
-        flightSuretyData.fund(AIRLINE_REGISTRATION_FEE);
 
-        uint amountToReturn = msg.value - AIRLINE_REGISTRATION_FEE;
-        msg.sender.transfer(amountToReturn);
+        address(flightSuretyData).transfer(msg.value);
+        flightSuretyData.fund(AIRLINE_REGISTRATION_FEE, msg.value);
 
     }
 
@@ -266,7 +267,6 @@ contract FlightSuretyApp {
         requireIsOperational
     {
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
-        //flightSuretyData.pay.value(msg.value)(msg.sender);
         flightSuretyData.pay(flightKey);
     }
 
@@ -469,17 +469,14 @@ contract FlightSuretyApp {
         return random;
     }
 
-    function testing()
-        public
-        view
-        returns(uint8 a, uint8 b, uint8 c)
-
-    {
-    a=oracles[msg.sender].indexes[0];
-    b=oracles[msg.sender].indexes[1];
-    c=oracles[msg.sender].indexes[2];
+    function transferEther() payable{
+        address(flightSuretyData).transfer(msg.value);
     }
 
+    //Fallback function to receive and transfer Ether
+        function() payable{
+            address(flightSuretyData).transfer(msg.value);
+        }
 
 // endregion
 
@@ -489,7 +486,7 @@ contract FlightSuretyData{
     function isOperational() public view returns(bool);
     function registerAirline(address airlineAddress, uint256 concensusPercentage) external;
     function buy(bytes32 flightKey, uint256 insuranceAmount, uint256 payoutAmount) external payable;
-    function fund(uint256 airlineRegistrationFree) public payable;
+    function fund(uint256 airlineRegistrationFree, uint256 msgValue) public payable;
     function creditInsurees(bytes32 flightKey) external;
     function isAirlineActive(address airlineAddress) external view returns(bool);
     function pay(bytes32 flightKey) external;
