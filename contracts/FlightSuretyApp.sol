@@ -236,6 +236,7 @@ contract FlightSuretyApp {
         requireIsOperational
     {
         require(msg.value <= INSURANCE_MAX, 'max insurance amount is 1 ether');
+        require(msg.value > 0, 'insurance amount cannot <= 0');
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
         uint256 payout = calculatePayout(msg.value);
         flightSuretyData.buy(flightKey, msg.value, payout);
@@ -246,7 +247,26 @@ contract FlightSuretyApp {
         payable
     requireIsOperational
     {
-        flightSuretyData.fund(AIRLINE_REGISTRATION_FEE, msg.value);
+        require(msg.value >= AIRLINE_REGISTRATION_FEE, 'airline registration fee is 10 ether');
+        flightSuretyData.fund(AIRLINE_REGISTRATION_FEE);
+
+        uint amountToReturn = msg.value - AIRLINE_REGISTRATION_FEE;
+        msg.sender.transfer(amountToReturn);
+
+    }
+
+    function payCustomer
+        (
+            address airline,
+            string flight,
+            uint256 timestamp
+        )
+        external
+        requireIsOperational
+    {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        //flightSuretyData.pay.value(msg.value)(msg.sender);
+        flightSuretyData.pay(flightKey);
     }
 
 
@@ -468,7 +488,8 @@ contract FlightSuretyData{
     function isOperational() public view returns(bool);
     function registerAirline(address airlineAddress, uint256 concensusPercentage) external;
     function buy(bytes32 flightKey, uint256 insuranceAmount, uint256 payoutAmount) external payable;
-    function fund(uint256 airlineRegistrationFree, uint256 msgValue) public payable;
+    function fund(uint256 airlineRegistrationFree) public payable;
     function creditInsurees(bytes32 flightKey) external;
     function isAirlineActive(address airlineAddress) external view returns(bool);
+    function pay(bytes32 flightKey) external;
 }

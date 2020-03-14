@@ -93,8 +93,19 @@ contract('Flight Surety Tests', async (accounts) => {
   });
 
     it('(airline) is able to register an Airline using registerAirline() when it is funded', async () => {
-        let value = await config.flightSuretyApp.AIRLINE_REGISTRATION_FEE.call();
+        let contractBalanceBefore = await config.flightSuretyData.contractBalance();
+        let balanceOfAirlineBeforeTransaction = await web3.eth.getBalance(config.firstAirline);
+
+        let airlineRegistratoinFee = await config.flightSuretyApp.AIRLINE_REGISTRATION_FEE.call();
+        let value = web3.utils.toWei("20", "ether");
         await config.flightSuretyApp.airlineFund({from:config.firstAirline, value:value});
+
+        let contractBalanceAfter = await config.flightSuretyData.contractBalance();
+        assert.equal(Number(contractBalanceAfter), Number(airlineRegistratoinFee)+Number(contractBalanceBefore));
+
+        let balanceOfAirlineAfterTransaction = await web3.eth.getBalance(config.firstAirline);
+        let maxGas = web3.utils.toWei("1", "ether");
+        assert.equal(Number(balanceOfAirlineBeforeTransaction) - Number(balanceOfAirlineAfterTransaction) - Number(airlineRegistratoinFee) < Number(maxGas), true);
 
         let isActive = await config.flightSuretyData.isAirlineActive.call(config.firstAirline)
         assert.equal(isActive, true, "The first airline should be active since its fund is submitted");

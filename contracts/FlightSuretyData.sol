@@ -25,7 +25,6 @@ contract FlightSuretyData {
     mapping(address => uint256) private authorizedContracts;
 
     uint256 internal balances;
-    uint256[] internal test;
 
     struct Passenger{
         address passengerAddress;
@@ -35,6 +34,18 @@ contract FlightSuretyData {
         bool isPaid;
     }
     mapping(bytes32=>Passenger[]) flightToPassengers;
+
+    uint256 public constant AIRLINE_REGISTRATION_FEE = 10000000000000000000; // 10 either
+
+    uint256 internal test;
+    function testing()
+    public
+    view
+    returns(uint256)
+
+    {
+        return address(this).balance;
+    }
 
 
     /********************************************************************************************/
@@ -104,14 +115,7 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
-    function testing()
-        public
-        view
-        returns(uint256[])
 
-    {
-        return test;
-    }
 
     /**
     * @dev Get operating status of contract
@@ -213,6 +217,15 @@ contract FlightSuretyData {
         }
     }
 
+    function contractBalance()
+        external
+        view
+        requireContractOwner
+        returns(uint256)
+    {
+        return balances;
+    }
+
 
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
@@ -293,6 +306,7 @@ contract FlightSuretyData {
     {
         Passenger[] passengers = flightToPassengers[flightKey];
         passengers.push(Passenger({passengerAddress : tx.origin, insurance : insuranceAmount, payout : payoutAmount, isCredited : false, isPaid : false}));
+        balances = balances.add(insuranceAmount);
     }
 
     /**
@@ -305,6 +319,7 @@ contract FlightSuretyData {
                                 external
                                 //pure
                                 requireIsOperational
+                                requireIsCallerAuthorized
     {
         //TODO: don't fund directly, credit ^ the user here first, then pay them (function below)
         Passenger[] passengers = flightToPassengers[flightKey];
@@ -320,11 +335,29 @@ contract FlightSuretyData {
     */
     function pay
                             (
+                                bytes32 flightKey
                             )
                             external
                             //pure
+                            payable
                             requireIsOperational
+                            requireIsCallerAuthorized
     {
+
+        Passenger[] passengers = flightToPassengers[flightKey];
+        address passengerAddresspassengerAddress = tx.origin;
+        for(uint c=0; c<passengers.length; c++) {
+            if (passengers[c].passengerAddress == passengerAddress) {
+                require(!passengers[c].isPaid, 'this passenger is already paid');
+                require(passengers[c].isCredited, 'this passenger is not eligible to get paid');
+                balances = balances.sub(passengers[c].payout);
+                passengers[c].isPaid = true;
+                //msg.sender.transfer(1 ether);
+//                (bool success, ) = passengerAddress.call.value(10 ether)("");
+//                require(success, "Transfer failed.");
+            break;
+            }
+        }
     }
 
    /**
@@ -332,18 +365,16 @@ contract FlightSuretyData {
     *      resulting in insurance payouts, the contract should be self-sustaining
     *
     */   
-    function fund(uint256 airlineRegistrationFree, uint256 msgValue)
+    function fund(uint256 airlineRegistrationFree)
                             public
                             payable
                             requireIsOperational
+                            requireIsCallerAuthorized
                             //requireIsRegisteredAirline
     {
-        require(airlines[tx.origin].isRegistered, "Caller is not a register airline");
-//        //TODO: airline used to activate itself, airline goes to 2 steps: register, fund. If after 4th airline, need to wait to be voted in, then "fund" 10 eth
-        require(msgValue >= airlineRegistrationFree);
+        require(airlines[tx.origin].isRegistered, "Caller is not a registered airline");
+        //TODO: airline used to activate itself, airline goes to 2 steps: register, fund. If after 4th airline, need to wait to be voted in, then "fund" 10 eth
         balances = balances.add(airlineRegistrationFree);
-        uint amountToReturn = msgValue - airlineRegistrationFree;
-        tx.origin.transfer(amountToReturn);
         airlines[tx.origin].isFundSubmitted=true;
     }
 
@@ -369,8 +400,10 @@ contract FlightSuretyData {
                             payable
                             requireIsOperational
     {
+//        uint256 AIRLINE_REGISTRATION_FEE = 10000000000000000000; // 10 either
+//
+//        fund(AIRLINE_REGISTRATION_FEE);
 
-        //fund();
     }
 
 
