@@ -1,5 +1,5 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
-var mnemonic = "token broccoli resource song angle dignity install inform inject peace siege outside";
+var mnemonic = "";
 
 module.exports = {
   networks: {

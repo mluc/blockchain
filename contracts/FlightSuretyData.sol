@@ -170,14 +170,14 @@ contract FlightSuretyData {
         delete authorizedContracts[contractAddress];
     }
 
-    function insuranceAmount(address airline, string flight, uint256 timestamp, address passengerAddress)
+    function insuranceInfo(address airline, string flight, uint256 timestamp, address passengerAddress)
         external
         view
         requireContractOwner
         returns(uint256 insuranceAmount, uint256 payoutAmount)
     {
         bytes32 flightKey = keccak256(abi.encodePacked(airline, flight, timestamp));
-        Passenger[] passengers = flightToPassengers[flightKey];
+        Passenger[] storage passengers = flightToPassengers[flightKey];
         insuranceAmount=0;
         payoutAmount=0;
         for(uint c=0; c<passengers.length; c++) {
@@ -193,14 +193,14 @@ contract FlightSuretyData {
         external
         view
         requireContractOwner
-        returns(bool isPassengerCredited)
+        returns(bool isCredited)
     {
         bytes32 flightKey = keccak256(abi.encodePacked(airline, flight, timestamp));
-        Passenger[] passengers = flightToPassengers[flightKey];
-        isPassengerCredited = false;
+        Passenger[] storage passengers = flightToPassengers[flightKey];
+        isCredited = false;
         for(uint c=0; c<passengers.length; c++) {
             if (passengers[c].passengerAddress == passengerAddress) {
-                isPassengerCredited = passengers[c].isCredited;
+                isCredited = passengers[c].isCredited;
                 break;
             }
         }
@@ -293,7 +293,7 @@ contract FlightSuretyData {
                             requireIsOperational
                             requireIsCallerAuthorized
     {
-        Passenger[] passengers = flightToPassengers[flightKey];
+        Passenger[] storage passengers = flightToPassengers[flightKey];
         passengers.push(Passenger({passengerAddress : tx.origin, insurance : insuranceAmount, payout : payoutAmount, isCredited : false, isPaid : false}));
     }
 
@@ -310,7 +310,7 @@ contract FlightSuretyData {
                                 requireIsCallerAuthorized
     {
         //TODO: don't fund directly, credit ^ the user here first, then pay them (function below)
-        Passenger[] passengers = flightToPassengers[flightKey];
+        Passenger[] storage passengers = flightToPassengers[flightKey];
         for(uint c=0; c<passengers.length; c++) {
             passengers[c].isCredited = true;
         }
@@ -332,7 +332,7 @@ contract FlightSuretyData {
                             requireIsCallerAuthorized
     {
 
-        Passenger[] passengers = flightToPassengers[flightKey];
+        Passenger[] storage passengers = flightToPassengers[flightKey];
         address passengerAddress = tx.origin;
         for(uint c=0; c<passengers.length; c++) {
             if (passengers[c].passengerAddress == passengerAddress) {

@@ -162,10 +162,10 @@ contract FlightSuretyApp {
         external
         view
         requireContractOwner
-        returns(bool isFlightRegistered)
+        returns(bool isRegistered)
     {
         bytes32 key = keccak256(abi.encodePacked(airline, flight, timestamp));
-        isFlightRegistered=flights[key].isRegistered;
+        isRegistered=flights[key].isRegistered;
     }
 
    /**
@@ -469,14 +469,10 @@ contract FlightSuretyApp {
         return random;
     }
 
-    function transferEther() payable{
+    //Fallback function to receive and transfer Ether
+    function() external payable{
         address(flightSuretyData).transfer(msg.value);
     }
-
-    //Fallback function to receive and transfer Ether
-        function() payable{
-            address(flightSuretyData).transfer(msg.value);
-        }
 
 // endregion
 

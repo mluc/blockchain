@@ -47,9 +47,9 @@ contract('Oracles', async (accounts) => {
     let contractBalanceBefore = await config.flightSuretyData.contractBalance();
     let insuranceAmount = web3.utils.toWei("1", "ether");
     await config.flightSuretyApp.buyInsurance(config.firstAirline, flight, timestamp,{from:passenger1, value:insuranceAmount});
-    let insuranceAmountReturn = await config.flightSuretyData.insuranceAmount(config.firstAirline, flight, timestamp,passenger1);
+    let insuranceAmountReturn = await config.flightSuretyData.insuranceInfo(config.firstAirline, flight, timestamp,passenger1);
     console.assert(insuranceAmount, insuranceAmountReturn['insuranceAmount']);
-    let payoutAmount = insuranceAmountReturn['payoutAmount']
+    let payoutAmount = insuranceAmountReturn['payoutAmount'];
     console.assert(insuranceAmount*1.5, payoutAmount);
 
     let contractBalanceAfter = await config.flightSuretyData.contractBalance();
