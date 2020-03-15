@@ -1,17 +1,22 @@
 import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
+import FlightSuretyData from '../../build/contracts/FlightSuretyData.json';
 import Config from './config.json';
 import Web3 from 'web3';
 
 export default class Contract {
+
     constructor(network, callback) {
 
         let config = Config[network];
+        console.log('GGGGGGG', config);
         this.web3 = new Web3(new Web3.providers.HttpProvider(config.url));
         this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
+        this.flightSuretyData= new this.web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
         this.initialize(callback);
         this.owner = null;
         this.airlines = [];
         this.passengers = [];
+        this.flightSuretyAppAddress = config.appAddress;
     }
 
     initialize(callback) {
@@ -33,11 +38,46 @@ export default class Contract {
         });
     }
 
+
+    authorizeContract(callback) {
+        let self = this;
+        self.flightSuretyData.methods
+            .authorizeContract(self.flightSuretyAppAddress)
+            .send({ from: self.owner}, callback);
+    }
+
+    // testing(callback) {
+    //     let self = this;
+    //     console.log('HHHHHH owner ', this.owner);
+    //     self.flightSuretyData.methods
+    //         .testing()
+    //         .call({ from: self.owner}, callback);
+    // }
+
     isOperational(callback) {
        let self = this;
        self.flightSuretyApp.methods
             .isOperational()
             .call({ from: self.owner}, callback);
+    }
+
+    registerAirline(airlineAddress, callerAddress, callback) {
+        let self = this;
+        let payload = {
+            airlineAddress: airlineAddress
+        }
+        self.flightSuretyApp.methods
+            .registerAirline(payload.airlineAddress)
+            .send({ from: callerAddress}, (error, result) => {
+                callback(error, payload);
+            });
+    }//airlineFund
+
+    airlineFund(callerAddress, amount, callback) {
+        let self = this;
+        self.flightSuretyApp.methods
+            .airlineFund()
+            .send({ from: callerAddress, value:amount*1000000000000000000}, callback);
     }
 
     fetchFlightStatus(flight, callback) {

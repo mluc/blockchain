@@ -13,6 +13,7 @@ let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddre
 flightSuretyApp.events.OracleRequest({
     fromBlock: 0
   }, function (error, event) {
+    console.log('In server.js OracleRequest');
     if (error) console.log(error)
     console.log(event)
 });
@@ -24,7 +25,7 @@ app.get('/api', (req, res) => {
     })
 })
 
-// TODO: add endpoints to return list of flights and add drop down to UI
+// TODO: ^add endpoints to return list of hardcoded flights and add drop down to UI
 
 export default app;
 

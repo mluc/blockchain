@@ -35,16 +35,14 @@ contract FlightSuretyData {
     }
     mapping(bytes32=>Passenger[]) flightToPassengers;
 
-    uint256 public constant AIRLINE_REGISTRATION_FEE = 10000000000000000000; // 10 either
-
-    uint256 internal test;
+    address internal test;
     function testing()
     public
     view
-    returns(uint256)
+    returns(address)
 
     {
-        return address(this).balance;
+        return test;
     }
 
 
@@ -66,6 +64,7 @@ contract FlightSuretyData {
         contractOwner = msg.sender;
         airlines[firstAirline] = AirlineProfile({isRegistered: true, isFundSubmitted:false, voteCount:1, votedAirlines:new address[](0)});
         registeredAirlineCount = registeredAirlineCount +1;
+        test = firstAirline;
     }
 
     /********************************************************************************************/
@@ -240,7 +239,6 @@ contract FlightSuretyData {
                             external
                             requireIsCallerAuthorized
                             requireIsOperational
-                            //requireIsActiveAirline
     {
         require(airlines[tx.origin].isFundSubmitted, "Original caller is not an active airline");
         require(!airlines[airlineAddress].isRegistered, "airline is already registered.");
