@@ -64,7 +64,6 @@ contract FlightSuretyData {
         contractOwner = msg.sender;
         airlines[firstAirline] = AirlineProfile({isRegistered: true, isFundSubmitted:false, voteCount:1, votedAirlines:new address[](0)});
         registeredAirlineCount = registeredAirlineCount +1;
-        test = firstAirline;
     }
 
     /********************************************************************************************/
