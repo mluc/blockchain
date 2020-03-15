@@ -16,6 +16,7 @@ export default class Contract {
         this.owner = null;
         this.airlines = [];
         this.passengers = [];
+        this.flights = [];
         this.flightSuretyAppAddress = config.appAddress;
     }
 
@@ -32,6 +33,14 @@ export default class Contract {
 
             while(this.passengers.length < 5) {
                 this.passengers.push(accts[counter++]);
+            }
+
+            let flightCount = 0;
+            while(this.flights.length < 5) {
+                let flight = 'ND134'+flightCount;
+                let timestamp = String(Math.floor(Date.now() / 10000)) + flightCount;
+                this.flights.push(flight + '|' + timestamp);
+                flightCount++;
             }
 
             callback();
@@ -61,24 +70,68 @@ export default class Contract {
             .call({ from: self.owner}, callback);
     }
 
+    isAirlineActive(airlineAddress, callback) {
+        let self = this;
+        self.flightSuretyData.methods
+            .isAirlineActive(airlineAddress)
+            .call({ from: self.owner}, callback);
+    }
+
+    isAirlineRegistered(airlineAddress, callback) {
+        let self = this;
+        self.flightSuretyData.methods
+            .isAirlineRegistered(airlineAddress)
+            .call({ from: self.owner}, callback);
+    }
+
     registerAirline(airlineAddress, callerAddress, callback) {
         let self = this;
         let payload = {
             airlineAddress: airlineAddress
-        }
+        };
         self.flightSuretyApp.methods
             .registerAirline(payload.airlineAddress)
             .send({ from: callerAddress}, (error, result) => {
                 callback(error, payload);
             });
-    }//airlineFund
+    }
 
     airlineFund(callerAddress, amount, callback) {
-        console.log('HHHHHHHHHHH ', callerAddress);
         let self = this;
         self.flightSuretyApp.methods
             .airlineFund()
             .send({ from: callerAddress, value:amount*1000000000000000000}, callback);
+    }
+
+    registerFlight(flightTimestamp, callerAirlineAddress, callback) {
+        let self = this;
+        let arr = flightTimestamp.split("|");
+        let flight = arr[0];
+        let timestamp = arr[1];
+        console.log('OOOOOOO ', flight, timestamp);
+        let payload = {
+            flight: flight,
+            timestamp: timestamp,
+        };
+        self.flightSuretyApp.methods
+            .registerFlight(payload.flight, payload.timestamp)
+            .send({ from: callerAirlineAddress}, callback);
+    }
+
+    buyInsurance(airlineAddress, flightTimestamp, amount, passengerAddress, callback) {
+        let self = this;
+        let flight;
+        let timestamp;
+        let payload = {
+            airline: airlineAddress,
+            flight: flight,
+            timestamp: timestamp,
+        };
+        self.flightSuretyApp.methods
+            .buyInsurance(payload.airline, payload.flight, payload.timestamp)
+            .send({ from: passengerAddress, value:amount*1000000000000000000}, (error, result) => {
+                callback(error, payload);
+            });
     }
 
     fetchFlightStatus(flight, callback) {

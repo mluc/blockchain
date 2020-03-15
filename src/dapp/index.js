@@ -11,6 +11,8 @@ import './flightsurety.css';
     let contract = new Contract('localhost', () => {
 
         populateAirlines(contract.airlines);
+        populatePassengers(contract.passengers);
+        populateFlightTimeStamp(contract.flights, contract.timestamps);
 
         display('Owner', '', [ { label: 'Address', error: null, value: contract.owner} ]);
 
@@ -75,6 +77,28 @@ import './flightsurety.css';
             });
         });
 
+        //register flight
+        DOM.elid('register-flight').addEventListener('click', () => {
+            let flightTimestamp = DOM.elid('flights').value;
+            let airlineAddress = DOM.elid('insurance-airline-addresses').value;
+            contract.registerFlight(flightTimestamp, airlineAddress,(error, result) => {
+                console.log('registerFlight:', error,result);
+                //display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+            });
+        })
+
+
+        //buy insurance
+        DOM.elid('buy-insurance').addEventListener('click', () => {
+            let flightTimestamp = DOM.elid('flights').value;
+            let airlineAddress = DOM.elid('insurance-airline-addresses').value;
+            let passengerAddress = DOM.elid('passenger-addresses').value;
+            let amount = DOM.elid('insurance-amount').value;
+            contract.buyInsurance(airlineAddress, flightTimestamp, amount, passengerAddress,(error, result) => {
+                console.log('buyInsurance:', error,result);
+                //display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+            });
+        })
 
         // User-submitted transaction
         DOM.elid('submit-oracle').addEventListener('click', () => {
@@ -115,6 +139,8 @@ function populateAirlines(airlines) {
     populate(displayDiv);
     displayDiv = DOM.elid("airline-address");
     populate(displayDiv);
+    displayDiv = DOM.elid("insurance-airline-addresses");
+    populate(displayDiv);
 
     function populate(displayDiv) {
         for (var i = 0; i < airlines.length; i++) {
@@ -125,7 +151,36 @@ function populateAirlines(airlines) {
             displayDiv.appendChild(el);
         }
     }
+}
 
+function populatePassengers(passengers) {
+    let displayDiv = DOM.elid("passenger-addresses");
+    populate(displayDiv);
+
+    function populate(displayDiv) {
+        for (var i = 0; i < passengers.length; i++) {
+            var opt = passengers[i];
+            var el = DOM.makeElement('option');
+            el.textContent = opt + '(Passenger' + (i+1) + ')';
+            el.value = opt;
+            displayDiv.appendChild(el);
+        }
+    }
+}
+
+function populateFlightTimeStamp(flights) {
+    let displayDiv = DOM.elid("flights");
+    populate(displayDiv, flights);
+
+    function populate(displayDiv, items) {
+        for (var i = 0; i < items.length; i++) {
+            var opt = items[i];
+            var el = DOM.makeElement('option');
+            el.textContent = opt;
+            el.value = opt;
+            displayDiv.appendChild(el);
+        }
+    }
 }
 
 
