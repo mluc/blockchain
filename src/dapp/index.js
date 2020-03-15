@@ -102,9 +102,17 @@ import './flightsurety.css';
             let airlineAddress = DOM.elid('insurance-airline-addresses').value;
             let passengerAddress = DOM.elid('passenger-addresses').value;
             let amount = DOM.elid('insurance-amount').value;
+            let des = flightTimestamp + '|' + airlineAddress;
             contract.buyInsurance(airlineAddress, flightTimestamp, amount, passengerAddress,(error, result) => {
                 console.log('buyInsurance:', error,result);
-                //display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+                if(error){
+                    display('Passengers', 'Buy insurance', [ { label: des, error: error} ]);
+                }else {
+                    contract.insuranceInfo(airlineAddress, flightTimestamp,passengerAddress, (e, r)=>{
+                        console.log('insuranceInfo:', r);
+                        display('Passengers', 'Buy insurance', [{ label: 'Flight Info', error: e, value:des},  { label: 'Insurance amount', error: e, value: r['insuranceAmount']}, { label: 'Payout amount if delayed', error: e, value: r['payoutAmount']} ]);
+                    });
+                }
             });
         })
 

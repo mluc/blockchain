@@ -290,8 +290,8 @@ contract FlightSuretyData {
                             requireIsOperational
                             requireIsCallerAuthorized
     {
-        Passenger[] storage passengers = flightToPassengers[flightKey];
-        passengers.push(Passenger({passengerAddress : tx.origin, insurance : insuranceAmount, payout : payoutAmount, isCredited : false, isPaid : false}));
+        Passenger memory passenger = Passenger( tx.origin, insuranceAmount, payoutAmount, false, false);
+        flightToPassengers[flightKey].push(passenger);
     }
 
     /**

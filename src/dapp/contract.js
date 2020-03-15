@@ -138,6 +138,14 @@ export default class Contract {
             });
     }
 
+    insuranceInfo(airlineAddress, flightTimestamp, passengerAddress, callback) {
+        let self = this;
+        let {flight, timestamp} = this.parseFlightTimestamp(flightTimestamp);
+        self.flightSuretyData.methods
+            .insuranceInfo(airlineAddress, flight, timestamp, passengerAddress)
+            .call({ from: self.owner}, callback);
+    }
+
     fetchFlightStatus(flight, callback) {
         let self = this;
         let payload = {
