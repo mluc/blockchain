@@ -99,6 +99,13 @@ contract('Flight Surety Tests', async (accounts) => {
         let value = web3.utils.toWei("20", "ether");
         await config.flightSuretyApp.airlineFund({from:config.firstAirline, value:value});
 
+        let newAirline = accounts[2];
+        try {
+            await config.flightSuretyApp.airlineFund({from:newAirline, value:value});
+        }catch (e) {
+            assert.equal(e.reason,'Caller is not a registered airline');
+        }
+
         let contractBalanceAfter = await config.flightSuretyData.contractBalance();
         assert.equal(Number(contractBalanceAfter), Number(airlineRegistratoinFee)+Number(contractBalanceBefore));
 
@@ -109,7 +116,6 @@ contract('Flight Surety Tests', async (accounts) => {
         let isActive = await config.flightSuretyData.isAirlineActive.call(config.firstAirline)
         assert.equal(isActive, true, "The first airline should be active since its fund is submitted");
 
-        let newAirline = accounts[2];
         await config.flightSuretyApp.registerAirline(newAirline, {from: config.firstAirline});
         let result = await config.flightSuretyData.isAirlineRegistered.call(newAirline);
         assert.equal(result, true, "Airline should be able to register another airline since its fund is submitted");

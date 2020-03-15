@@ -16,10 +16,10 @@ import './flightsurety.css';
 
         display('Airlines', 'Addresses', [
             {label: 'Airline1', error: null, value: contract.airlines[0] + ' (Registered)'},
-            {label: 'Airline2', error: null, value: contract.airlines[0]},
-            {label: 'Airline3', error: null, value: contract.airlines[0]},
-            {label: 'Airline4', error: null, value: contract.airlines[0]},
-            {label: 'Airline5', error: null, value:contract.airlines[0]},
+            {label: 'Airline2', error: null, value: contract.airlines[1]},
+            {label: 'Airline3', error: null, value: contract.airlines[2]},
+            {label: 'Airline4', error: null, value: contract.airlines[3]},
+            {label: 'Airline5', error: null, value:contract.airlines[4]},
             ]);
 
         display('Passengers', 'Addresses', [
