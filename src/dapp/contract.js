@@ -107,15 +107,14 @@ export default class Contract {
         let self = this;
         let arr = flightTimestamp.split("|");
         let flight = arr[0];
-        let timestamp = arr[1];
-        console.log('OOOOOOO ', flight, timestamp);
+        let timestamp = Number(arr[1]);
         let payload = {
             flight: flight,
             timestamp: timestamp,
         };
         self.flightSuretyApp.methods
             .registerFlight(payload.flight, payload.timestamp)
-            .send({ from: callerAirlineAddress}, callback);
+            .send({ from: callerAirlineAddress, gas:500000000}, callback);
     }
 
     buyInsurance(airlineAddress, flightTimestamp, amount, passengerAddress, callback) {
