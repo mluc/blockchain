@@ -39,14 +39,23 @@ import './flightsurety.css';
         });
 
 
-
+        //registerAirline
         DOM.elid('register-airline').addEventListener('click', () => {
             let airlineAddress = DOM.elid('airline-address').value;
             let callerAddress = DOM.elid('register-airline-caller-address').value;
-            // Write transaction
             contract.registerAirline(airlineAddress, callerAddress, (error, result) => {
                 console.log('registerAirline', error,result);
-                display('Airlines', '', [ { label: 'Airline Address', error: error, value: airlineAddress}, { label: 'Action', error: error, value: 'Registered'} ]);
+                if(error){
+                    display('Airlines', '', [ { label: 'Airline Address', error: error}, { label: 'Action', error: error} ]);
+                }else {
+                        contract.isAirlineRegistered(airlineAddress,(e, r)=>{
+                            console.log('isAirlineRegistered', r);
+
+                            if(r){
+                            display('Airlines', '', [ { label: 'Airline Address', error: e, value: airlineAddress}, { label: 'Action', error: e, value: 'Registered'} ]);
+                        }
+                    });
+                }
             });
         })
 

@@ -355,6 +355,8 @@ contract FlightSuretyData {
                             requireIsCallerAuthorized
     {
         require(airlines[tx.origin].isRegistered, "Caller is not a registered airline");
+        require(!airlines[tx.origin].isFundSubmitted, "Caller has already submitted fund");
+
         //TODO: airline used to activate itself, airline goes to 2 steps: register, fund. If after 4th airline, need to wait to be voted in, then "fund" 10 eth
         airlines[tx.origin].isFundSubmitted=true;
 
