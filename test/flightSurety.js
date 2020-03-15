@@ -144,6 +144,7 @@ contract('Flight Surety Tests', async (accounts) => {
         try{
             await config.flightSuretyApp.registerAirline(airline5, {from: config.firstAirline});
         }catch (e) {
+            assert.equal(e.reason, 'Caller has already voted this airline');
             isDup=true;
         }
         assert.equal(isDup, true, "Airline cannot vote for another airline more than once");
