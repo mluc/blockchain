@@ -130,7 +130,7 @@ contract FlightSuretyApp {
                             requireIsOperational
                             returns(bool success, uint256 votes)
     {
-        flightSuretyData.registerAirline(airlineAddress, CONSENSUS_PERCENTAGE); //TODO
+        flightSuretyData.registerAirline(airlineAddress, CONSENSUS_PERCENTAGE); //TODO: event
         return (success, 0);
     }
 
