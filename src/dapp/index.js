@@ -10,6 +10,8 @@ import './flightsurety.css';
 
     let contract = new Contract('localhost', () => {
 
+        populateAirlines(contract.airlines);
+
         display('Owner', '', [ { label: 'Address', error: null, value: contract.owner} ]);
 
         display('Airlines', 'Addresses', [
@@ -90,6 +92,17 @@ function display(title, description, results) {
 
 }
 
+
+function populateAirlines(airlines) {
+    let displayDiv = DOM.elid("fund-money-caller-address");
+    for(var i = 0; i < airlines.length; i++) {
+        var opt = airlines[i];
+        var el = DOM.makeElement('option');
+        el.textContent = opt;
+        el.value = opt;
+        displayDiv.appendChild(el);
+    }
+}
 
 
 
