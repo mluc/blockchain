@@ -255,7 +255,7 @@ contract FlightSuretyData {
                         break;
                     }
                 }
-                require(!isDuplicate, "Caller has already voted this airline.");
+                require(!isDuplicate, "Caller has already voted this airline");
 
                 uint256 newVoteCount=airlines[airlineAddress].voteCount+1;
                 bool canBeRegistered = newVoteCount >= (registeredAirlineCount * concensusPercentage / 100);
