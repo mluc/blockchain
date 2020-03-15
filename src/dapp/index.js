@@ -95,13 +95,22 @@ function display(title, description, results) {
 
 function populateAirlines(airlines) {
     let displayDiv = DOM.elid("fund-money-caller-address");
-    for(var i = 0; i < airlines.length; i++) {
-        var opt = airlines[i];
-        var el = DOM.makeElement('option');
-        el.textContent = opt;
-        el.value = opt;
-        displayDiv.appendChild(el);
+    populate(displayDiv);
+    displayDiv = DOM.elid("register-airline-caller-address");
+    populate(displayDiv);
+    displayDiv = DOM.elid("airline-address");
+    populate(displayDiv);
+
+    function populate(displayDiv) {
+        for (var i = 0; i < airlines.length; i++) {
+            var opt = airlines[i];
+            var el = DOM.makeElement('option');
+            el.textContent = opt + '(Airline' + (i+1) + ')';
+            el.value = opt;
+            displayDiv.appendChild(el);
+        }
     }
+
 }
 
 

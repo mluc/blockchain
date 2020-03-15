@@ -74,6 +74,7 @@ export default class Contract {
     }//airlineFund
 
     airlineFund(callerAddress, amount, callback) {
+        console.log('HHHHHHHHHHH ', callerAddress);
         let self = this;
         self.flightSuretyApp.methods
             .airlineFund()

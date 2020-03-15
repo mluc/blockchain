@@ -24,21 +24,36 @@
         <div id="display-wrapper" class="top-20">
         </div>
         <div>
+            <hr color="white">
+
             <div class="row top-20">
                 <label class="form">Airline amount (ether): </label> <input type="text" id="airline-amount">
-                <label class="form">Caller address: </label> <select id="fund-money-caller-address"><option/>
-            </select>
+            </div>
+            <div class="row top-20">
+                <label class="form">Caller address: </label> <select id="fund-money-caller-address"><option/></select>
+            </div>
+            <div class="row top-20">
                 <btn class="btn btn-primary" id="fund-money">Fund seed money</btn>
             </div>
-            <div class="row top-20">
-                <label class="form">Airline address: </label> <input type="text" id="airline-address">
-                <label class="form">Caller address: </label> <input type="text" id="register-airline-caller-address">
-                <btn class="btn btn-primary" id="register-airline">Register Airline</btn>
 
+            <hr color="white">
+
+            <div class="row top-20">
+                <label class="form">Airline address: </label> <select id="airline-address"><option/></select>
             </div>
-            
+            <div class="row top-20">
+                <label class="form">Caller address: </label> <select id="register-airline-caller-address"><option/></select>
+            </div>
+            <div class="row top-20">
+                <btn class="btn btn-primary" id="register-airline">Register Airline</btn>
+            </div>
+
+            <hr color="white">
+
             <div class="row top-20">
                 <label class="form">Flight: </label> <input type="text" id="flight-number">
+            </div>
+            <div class="row top-20">
                 <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
             </div>
 
