@@ -335,6 +335,7 @@ contract FlightSuretyData {
             if (passengers[c].passengerAddress == passengerAddress) {
                 require(!passengers[c].isPaid, 'this passenger is already paid');
                 require(passengers[c].isCredited, 'this passenger is not eligible to get paid');
+                require(address(this).balance >= passengers[c].payout, 'not enough money to pay');
                 passengers[c].isPaid = true;
 
                 tx.origin.transfer(passengers[c].payout);
