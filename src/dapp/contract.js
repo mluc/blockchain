@@ -105,9 +105,7 @@ export default class Contract {
 
     registerFlight(flightTimestamp, callerAirlineAddress, callback) {
         let self = this;
-        let arr = flightTimestamp.split("|");
-        let flight = arr[0];
-        let timestamp = Number(arr[1]);
+        let {flight, timestamp} = this.parseFlightTimestamp(flightTimestamp);
         let payload = {
             flight: flight,
             timestamp: timestamp,
@@ -117,10 +115,17 @@ export default class Contract {
             .send({ from: callerAirlineAddress, gas:500000000}, callback);
     }
 
+    isFlightRegistered(airlineAddress, flightTimestamp, callback) {
+        let self = this;
+        let {flight, timestamp} = this.parseFlightTimestamp(flightTimestamp);
+        self.flightSuretyApp.methods
+            .isFlightRegistered(airlineAddress, flight, timestamp)
+            .call({ from: self.owner}, callback);
+    }
+
     buyInsurance(airlineAddress, flightTimestamp, amount, passengerAddress, callback) {
         let self = this;
-        let flight;
-        let timestamp;
+        let {flight, timestamp} = this.parseFlightTimestamp(flightTimestamp);
         let payload = {
             airline: airlineAddress,
             flight: flight,
@@ -128,7 +133,7 @@ export default class Contract {
         };
         self.flightSuretyApp.methods
             .buyInsurance(payload.airline, payload.flight, payload.timestamp)
-            .send({ from: passengerAddress, value:amount*1000000000000000000}, (error, result) => {
+            .send({ from: passengerAddress, value:amount*1000000000000000000, gas:500000000}, (error, result) => {
                 callback(error, payload);
             });
     }
@@ -145,5 +150,12 @@ export default class Contract {
             .send({ from: self.owner}, (error, result) => {
                 callback(error, payload);
             });
+    }
+
+    parseFlightTimestamp(flightTimestamp) {
+        let arr = flightTimestamp.split("|");
+        let flight = arr[0];
+        let timestamp = Number(arr[1]);
+        return {flight, timestamp};
     }
 }

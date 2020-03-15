@@ -48,7 +48,7 @@ import './flightsurety.css';
             contract.registerAirline(airlineAddress, callerAddress, (error, result) => {
                 console.log('registerAirline:', error,result);
                 if(error){
-                    display('Airlines', '', [ { label: 'Airline Address', error: error}, { label: 'Action', error: error} ]);
+                    display('Airlines', '', [ { label: 'Airline Address', error: error} ]);
                 }else {
                         contract.isAirlineRegistered(airlineAddress,(e, r)=>{
                             console.log('isAirlineRegistered:', r);
@@ -66,7 +66,7 @@ import './flightsurety.css';
             contract.airlineFund(callerAddress, amount, (error, result) => {
                 console.log('airlineFund:', error,result);
                 if(error){
-                    display('Airlines', '', [ { label: 'Airline Address', error: error}, { label: 'Action', error: error} ]);
+                    display('Airlines', '', [ { label: 'Airline Address', error: error} ]);
                 }else {
                     contract.isAirlineActive(callerAddress,(e, r)=>{
                         console.log('isAirlineActive:', r);
@@ -83,7 +83,15 @@ import './flightsurety.css';
             let airlineAddress = DOM.elid('insurance-airline-addresses').value;
             contract.registerFlight(flightTimestamp, airlineAddress,(error, result) => {
                 console.log('registerFlight:', error,result);
-                //display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+                let des = flightTimestamp + '|' + airlineAddress;
+                if(error){
+                    display('Flights', 'Register flight', [ { label: des, error: error} ]);
+                }else {
+                    contract.isFlightRegistered(airlineAddress, flightTimestamp,(e, r)=>{
+                        console.log('isFlightRegistered:', r);
+                        display('Flights', 'Register flight', [{ label: 'Flight Info', error: e, value:des},  { label: 'Action', error: e, value: 'Registered'} ]);
+                    });
+                }
             });
         })
 
