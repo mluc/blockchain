@@ -31,10 +31,10 @@ import './flightsurety.css';
         ]);
 
         contract.authorizeContract((error, result) => {
-            console.log('authorizeContract', error,result);
-            contract.isOperational((error, result) => {
-                console.log('isOperational', error,result);
-                display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
+            console.log('authorizeContract:', error,result);
+            contract.isOperational((e, r) => {
+                console.log('isOperational:', e,r);
+                display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: e, value: r} ]);
             });
         });
 
@@ -44,30 +44,36 @@ import './flightsurety.css';
             let airlineAddress = DOM.elid('airline-address').value;
             let callerAddress = DOM.elid('register-airline-caller-address').value;
             contract.registerAirline(airlineAddress, callerAddress, (error, result) => {
-                console.log('registerAirline', error,result);
+                console.log('registerAirline:', error,result);
                 if(error){
                     display('Airlines', '', [ { label: 'Airline Address', error: error}, { label: 'Action', error: error} ]);
                 }else {
                         contract.isAirlineRegistered(airlineAddress,(e, r)=>{
-                            console.log('isAirlineRegistered', r);
-
-                            if(r){
+                            console.log('isAirlineRegistered:', r);
                             display('Airlines', '', [ { label: 'Airline Address', error: e, value: airlineAddress}, { label: 'Action', error: e, value: 'Registered'} ]);
-                        }
                     });
                 }
             });
-        })
+        });
 
+        //airline submits fund
         DOM.elid('fund-money').addEventListener('click', () => {
             let callerAddress = DOM.elid('fund-money-caller-address').value;
             let amount = DOM.elid('airline-amount').value;
             // Write transaction
             contract.airlineFund(callerAddress, amount, (error, result) => {
-                console.log('airlineFund', error,result);
-                display('Airlines', '', [ { label: 'Airline Address', error: error, value: callerAddress}, { label: 'Action', error: error, value: 'Funded'} ]);
+                console.log('airlineFund:', error,result);
+                if(error){
+                    display('Airlines', '', [ { label: 'Airline Address', error: error}, { label: 'Action', error: error} ]);
+                }else {
+                    contract.isAirlineActive(callerAddress,(e, r)=>{
+                        console.log('isAirlineActive:', r);
+                        display('Airlines', '', [ { label: 'Airline Address', error: e, value: callerAddress}, { label: 'Action', error: e, value: 'Funded'} ]);
+                    });
+                }
+
             });
-        })
+        });
 
 
         // User-submitted transaction
