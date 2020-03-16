@@ -155,6 +155,21 @@ const statusCodeToString = {
                 }
             });
         })
+
+        // pay passenger
+        DOM.elid('payout-passenger').addEventListener('click', () => {
+            let flightTimestamp = DOM.elid('payout-flight').value;
+            let airlineAddress = DOM.elid('payout-airline-address').value;
+            let passengerAddress = DOM.elid('payout-passenger-address').value;
+            contract.payCustomer(airlineAddress, flightTimestamp, passengerAddress,(error, result) => {
+                console.log('payCustomer', error,result);
+                if(error){
+                    display('Passenger', 'Payout', [{ label: 'Flight | Timestamp', value: flightTimestamp +'|'+airlineAddress}, { label: 'Status', error: error} ]);
+                }else {
+
+                }
+            });
+        })
     
     });
     
@@ -189,6 +204,8 @@ function populateAirlines(airlines) {
     populate(displayDiv);
     displayDiv = DOM.elid("fetch-airline-address");
     populate(displayDiv);
+    displayDiv = DOM.elid("payout-airline-address");
+    populate(displayDiv);
 
     function populate(displayDiv) {
         for (var i = 0; i < airlines.length; i++) {
@@ -203,6 +220,8 @@ function populateAirlines(airlines) {
 
 function populatePassengers(passengers) {
     let displayDiv = DOM.elid("passenger-addresses");
+    populate(displayDiv);
+    displayDiv = DOM.elid("payout-passenger-address");
     populate(displayDiv);
 
     function populate(displayDiv) {
@@ -221,6 +240,9 @@ function populateFlightTimeStamp(flights) {
     populate(displayDiv, flights);
     displayDiv = DOM.elid("fetch-flight");
     populate(displayDiv, flights);
+    displayDiv = DOM.elid("payout-flight");
+    populate(displayDiv, flights);
+
 
     function populate(displayDiv, items) {
         for (var i = 0; i < items.length; i++) {

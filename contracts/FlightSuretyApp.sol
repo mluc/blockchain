@@ -193,7 +193,7 @@ contract FlightSuretyApp {
     {
         //TODO: triggered when oracle come back with result, and it decide where thing goes: if statusCode not 20, noop, if statusCode 20, look for passengers with that flights + purchase insurance, start the process of how much they should be paid
 
-        if(statusCode==STATUS_CODE_LATE_AIRLINE){
+        if(statusCode!=STATUS_CODE_ON_TIME){
             bytes32 flightKey = getFlightKey(airline,flight,timestamp);
             flightSuretyData.creditInsurees(flightKey);
         }

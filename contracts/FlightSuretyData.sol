@@ -306,10 +306,10 @@ contract FlightSuretyData {
                                 requireIsOperational
                                 requireIsCallerAuthorized
     {
+
         //TODO: don't fund directly, credit ^ the user here first, then pay them (function below)
-        Passenger[] storage passengers = flightToPassengers[flightKey];
-        for(uint c=0; c<passengers.length; c++) {
-            passengers[c].isCredited = true;
+        for(uint c=0; c<flightToPassengers[flightKey].length; c++) {
+            flightToPassengers[flightKey][c].isCredited = true;
         }
     }
     
@@ -328,7 +328,7 @@ contract FlightSuretyData {
                             requireIsOperational
                             requireIsCallerAuthorized
     {
-
+        bool passengerWithInsurance = false;
         Passenger[] storage passengers = flightToPassengers[flightKey];
         address passengerAddress = tx.origin;
         for(uint c=0; c<passengers.length; c++) {
@@ -337,11 +337,13 @@ contract FlightSuretyData {
                 require(passengers[c].isCredited, 'this passenger is not eligible to get paid');
                 require(address(this).balance >= passengers[c].payout, 'not enough money to pay');
                 passengers[c].isPaid = true;
+                passengerWithInsurance = true;
 
                 tx.origin.transfer(passengers[c].payout);
             break;
             }
         }
+        require(passengerWithInsurance, 'This passenger did not buy insurance for this flight');
     }
 
    /**

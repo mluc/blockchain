@@ -168,6 +168,21 @@ export default class Contract {
             .call({ from: self.owner}, callback);
     }
 
+    payCustomer(airlineAddress,flightTimestamp, passengerAddress, callback) {
+        let self = this;
+        let {flight, timestamp} = this.parseFlightTimestamp(flightTimestamp);
+        let payload = {
+            airlineAddress: airlineAddress,
+            flight: flight,
+            timestamp: timestamp,
+        };
+        self.flightSuretyApp.methods
+            .payCustomer(payload.airlineAddress, payload.flight, payload.timestamp)
+            .send({ from: passengerAddress,gas:500000000}, (error, result) => {
+                callback(error, payload);
+            });
+    }
+
     parseFlightTimestamp(flightTimestamp) {
         let arr = flightTimestamp.split("|");
         let flight = arr[0];
