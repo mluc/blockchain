@@ -189,4 +189,9 @@ export default class Contract {
         let timestamp = Number(arr[1]);
         return {flight, timestamp};
     }
+
+    getPassengerBalance(passengerAddress) {
+        let self = this;
+        return self.web3.eth.getBalance(passengerAddress);
+    }
 }

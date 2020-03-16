@@ -163,12 +163,19 @@ const statusCodeToString = {
             let passengerAddress = DOM.elid('payout-passenger-address').value;
             contract.payCustomer(airlineAddress, flightTimestamp, passengerAddress,(error, result) => {
                 console.log('payCustomer', error,result);
-                if(error){
-                    display('Passenger', 'Payout', [{ label: 'Flight | Timestamp', value: flightTimestamp +'|'+airlineAddress}, { label: 'Status', error: error} ]);
-                }else {
-
-                }
+                display('Passenger', 'Payout', [{ label: 'Flight | Timestamp', value: flightTimestamp +'|'+airlineAddress}, { label: 'Status', error: error, value:'Paid'} ]);
             });
+        })
+
+        // passenger balance
+        DOM.elid('passenger-balance').addEventListener('click', () => {
+            let passengerAddress = DOM.elid('payout-passenger-address').value;
+            contract.getPassengerBalance(passengerAddress).then(function (result) {
+                let resultEther = Number(result)/1000000000000000000;
+                console.log('getPassengerBalance', resultEther);
+                display('Passenger', '', [{ label: 'Passenger Address', value: passengerAddress}, { label: 'Balance(ether)', value: resultEther} ]);
+            })
+
         })
     
     });
