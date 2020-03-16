@@ -128,9 +128,6 @@ import './flightsurety.css';
                     display('Oracles', 'Fetch Flight Status', [ { label: 'Flight | Timestamp', value: result.flight + ' | ' + result.timestamp} ]);
                     //
 
-
-
-
                 }
             });
         })

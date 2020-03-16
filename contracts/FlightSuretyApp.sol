@@ -112,6 +112,13 @@ contract FlightSuretyApp {
         return flightSuretyData.isOperational();  // Modify to call data contract's status
     }
 
+    function getRegistrationFee()
+        external
+        view
+    returns(uint256)
+    {
+        return REGISTRATION_FEE;
+    }
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
@@ -203,6 +210,9 @@ contract FlightSuretyApp {
                         external
                         requireIsOperational
     {
+        bytes32 flightKey = keccak256(abi.encodePacked(airline, flight, timestamp));
+        require(flights[flightKey].isRegistered, "Flight is not registered");
+
         uint8 index = getRandomIndex(msg.sender);
 
         // Generate a unique key for storing the request
@@ -277,7 +287,7 @@ contract FlightSuretyApp {
     uint8 private nonce = 0;    
 
     // Fee to be paid when registering oracle
-    uint256 public constant REGISTRATION_FEE = 1 ether; //TODO 10 ether?
+    uint256 public constant REGISTRATION_FEE = 1 ether;
 
     // Number of oracles that must respond for valid status
     uint256 private constant MIN_RESPONSES = 3;
