@@ -130,7 +130,6 @@ app.get('/', (req, res) => {
     })
 })
 
-// TODO: ^add endpoints to return list of hardcoded flights and add drop down to UI
 
 export default app;
 

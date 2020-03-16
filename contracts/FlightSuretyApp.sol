@@ -19,14 +19,14 @@ contract FlightSuretyApp {
     // Flight status codees
     uint8 private constant STATUS_CODE_UNKNOWN = 0;
     uint8 private constant STATUS_CODE_ON_TIME = 10;
-    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20; //TODO: delay due to airline, pay out
+    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
     uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
     address private contractOwner;          // Account used to deploy contract
 
-    struct Flight { //TODO: support oracles
+    struct Flight {
         bool isRegistered;
         uint8 statusCode;
         uint256 updatedTimestamp;        
@@ -138,7 +138,7 @@ contract FlightSuretyApp {
                             requireIsOperational
                             returns(bool success, uint256 votes)
     {
-        flightSuretyData.registerAirline(airlineAddress, CONSENSUS_PERCENTAGE); //TODO: event
+        flightSuretyData.registerAirline(airlineAddress, CONSENSUS_PERCENTAGE);
         return (success, 0);
     }
 
@@ -158,9 +158,6 @@ contract FlightSuretyApp {
     {
         address airlineAddress = msg.sender;
         require(flightSuretyData.isAirlineActive(airlineAddress), 'only active airline can register flights');
-        //TODO: it can be list of flights user can choose( hard coded).
-        //Do this if you want to be more challenge: register a flight and then retrieve a list of flights that are registered when the user ready make a selection from UI.
-        // Flights has timestamp, only show flights for the future
         bytes32 key = keccak256(abi.encodePacked(airlineAddress, flight, timestamp));
         flights[key] = Flight({isRegistered:true, statusCode:STATUS_CODE_UNKNOWN, updatedTimestamp:timestamp, airline:airlineAddress, hasResult:false});
 
@@ -191,7 +188,6 @@ contract FlightSuretyApp {
                                 //pure
                                 requireIsOperational
     {
-        //TODO: triggered when oracle come back with result, and it decide where thing goes: if statusCode not 20, noop, if statusCode 20, look for passengers with that flights + purchase insurance, start the process of how much they should be paid
 
         if(statusCode!=STATUS_CODE_ON_TIME){
             bytes32 flightKey = getFlightKey(airline,flight,timestamp);
@@ -200,7 +196,6 @@ contract FlightSuretyApp {
     }
 
 
-    //TODO: a button clicked on the client
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus
                         (
