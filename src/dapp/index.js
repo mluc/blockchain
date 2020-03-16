@@ -3,6 +3,14 @@ import DOM from './dom';
 import Contract from './contract';
 import './flightsurety.css';
 
+const statusCodeToString = {
+    0: 'UNKNOWN',
+    10: 'ON TIME',
+    20: 'LATE AIRLINE',
+    30: 'LATE WEATHER',
+    40: 'LATE TECHNICAL',
+    50: 'LATE OTHER',
+};
 
 (async() => {
 
@@ -121,12 +129,28 @@ import './flightsurety.css';
             let flightTimestamp = DOM.elid('fetch-flight').value;
             let airlineAddress = DOM.elid('fetch-airline-address').value;
             contract.fetchFlightStatus(airlineAddress, flightTimestamp, (error, result) => {
-                console.log(error,result);
+                console.log('fetchFlightStatus', error,result);
                 if(error){
                     display('Oracles', 'Fetch Flight Status', [ { label: 'Error', error: error} ]);
                 }else {
-                    display('Oracles', 'Fetch Flight Status', [ { label: 'Flight | Timestamp', value: result.flight + ' | ' + result.timestamp} ]);
-                    //
+                    display('Oracles', 'Fetch Flight Status', [ { label: 'Flight | Timestamp', value: result.flight + ' | ' + result.timestamp + ' | ' + airlineAddress} ]);
+
+                }
+            });
+        })
+
+        // view flight status
+        DOM.elid('view-flight-status').addEventListener('click', () => {
+            let flightTimestamp = DOM.elid('fetch-flight').value;
+            let airlineAddress = DOM.elid('fetch-airline-address').value;
+            contract.viewFlightStatus(airlineAddress, flightTimestamp, (error, result) => {
+                console.log('viewFlightStatus', error,result);
+                if(error){
+                    display('Flights', 'View Flight Status', [{ label: 'Flight | Timestamp', value: flightTimestamp +'|'+airlineAddress}, { label: 'Flight Status', error: error} ]);
+                }else {
+                    console.log('has result', result['hasResult'], result['statusCode'])
+                    let status = statusCodeToString[result['statusCode']]
+                    display('Flights', 'View Flight Status', [ { label: 'Flight | Timestamp', value: flightTimestamp +'|'+airlineAddress}, { label: 'Status', value: status} ]);
 
                 }
             });

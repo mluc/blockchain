@@ -160,6 +160,14 @@ export default class Contract {
             });
     }
 
+    viewFlightStatus(airlineAddress, flightTimestamp, callback) {
+        let self = this;
+        let {flight, timestamp} = this.parseFlightTimestamp(flightTimestamp);
+        self.flightSuretyApp.methods
+            .viewFlightStatus(airlineAddress, flight, timestamp)
+            .call({ from: self.owner}, callback);
+    }
+
     parseFlightTimestamp(flightTimestamp) {
         let arr = flightTimestamp.split("|");
         let flight = arr[0];

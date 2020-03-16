@@ -31,6 +31,7 @@ contract FlightSuretyApp {
         uint8 statusCode;
         uint256 updatedTimestamp;        
         address airline;
+        bool hasResult;
     }
     mapping(bytes32 => Flight) private flights;
 
@@ -114,7 +115,7 @@ contract FlightSuretyApp {
 
     function getRegistrationFee()
         external
-        view
+        pure
     returns(uint256)
     {
         return REGISTRATION_FEE;
@@ -161,7 +162,7 @@ contract FlightSuretyApp {
         //Do this if you want to be more challenge: register a flight and then retrieve a list of flights that are registered when the user ready make a selection from UI.
         // Flights has timestamp, only show flights for the future
         bytes32 key = keccak256(abi.encodePacked(airlineAddress, flight, timestamp));
-        flights[key] = Flight({isRegistered:true, statusCode:STATUS_CODE_UNKNOWN, updatedTimestamp:timestamp, airline:airlineAddress});
+        flights[key] = Flight({isRegistered:true, statusCode:STATUS_CODE_UNKNOWN, updatedTimestamp:timestamp, airline:airlineAddress, hasResult:false});
 
     }
 
@@ -212,6 +213,9 @@ contract FlightSuretyApp {
     {
         bytes32 flightKey = keccak256(abi.encodePacked(airline, flight, timestamp));
         require(flights[flightKey].isRegistered, "Flight is not registered");
+
+        //looking for new result
+        flights[flightKey].hasResult=false;
 
         uint8 index = getRandomIndex(msg.sender);
 
@@ -396,6 +400,7 @@ contract FlightSuretyApp {
 
             // Save the flight information for posterity
             flights[flightKey].statusCode = statusCode;
+            flights[flightKey].hasResult = true;
 
             // Handle flight status as appropriate
             processFlightStatus(airline, flight, timestamp, statusCode);
@@ -413,12 +418,12 @@ contract FlightSuretyApp {
     )
     external
     view
-    returns(uint8)
+    returns(bool hasResult, uint8 statusCode)
     {
         bytes32 key = keccak256(abi.encodePacked(airline, flight, timestamp));
-        require(flights[key].statusCode != STATUS_CODE_UNKNOWN, "Flight status not available");
-
-        return flights[key].statusCode;
+        require(flights[key].hasResult, "Flight status is not available. Try again later.");
+        hasResult = flights[key].hasResult;
+        statusCode= flights[key].statusCode;
 
     }
 

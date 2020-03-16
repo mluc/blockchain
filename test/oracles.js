@@ -104,7 +104,7 @@ contract('Oracles', async (accounts) => {
     }
 
     let flightStatus = await config.flightSuretyApp.viewFlightStatus(config.firstAirline, flight, timestamp);
-    assert.equal(flightStatus.toNumber(), STATUS_CODE_LATE_AIRLINE)
+    assert.equal(flightStatus['statusCode'].toNumber(), STATUS_CODE_LATE_AIRLINE)
     let isPassengerCredited = await config.flightSuretyData.isPassengerCredited(config.firstAirline, flight, timestamp, passenger1);
     assert.equal(isPassengerCredited, true)
     isPassengerCredited = await config.flightSuretyData.isPassengerCredited(config.firstAirline, flight, timestamp, passenger2);
@@ -186,7 +186,7 @@ contract('Oracles', async (accounts) => {
     }
 
     let flightStatus = await config.flightSuretyApp.viewFlightStatus(config.firstAirline, flight, timestamp);
-    assert.equal(flightStatus.toNumber(), STATUS_CODE_ON_TIME)
+    assert.equal(flightStatus['statusCode'].toNumber(), STATUS_CODE_ON_TIME)
     let isPassengerCredited = await config.flightSuretyData.isPassengerCredited(config.firstAirline, flight, timestamp, passenger1);
     assert.equal(isPassengerCredited, false)
 
