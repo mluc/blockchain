@@ -100,7 +100,7 @@ export default class Contract {
         let self = this;
         self.flightSuretyApp.methods
             .airlineFund()
-            .send({ from: callerAddress, value:amount*1000000000000000000}, callback);
+            .send({ from: callerAddress, value:Number(amount)*1000000000000000000,gas:500000000}, callback);
     }
 
     registerFlight(flightTimestamp, callerAirlineAddress, callback) {
@@ -133,7 +133,7 @@ export default class Contract {
         };
         self.flightSuretyApp.methods
             .buyInsurance(payload.airline, payload.flight, payload.timestamp)
-            .send({ from: passengerAddress, value:amount*1000000000000000000, gas:500000000}, (error, result) => {
+            .send({ from: passengerAddress, value:Number(amount)*1000000000000000000, gas:500000000}, (error, result) => {
                 callback(error, payload);
             });
     }
@@ -155,7 +155,7 @@ export default class Contract {
         } 
         self.flightSuretyApp.methods
             .fetchFlightStatus(payload.airline, payload.flight, payload.timestamp)
-            .send({ from: self.owner}, (error, result) => {
+            .send({ from: self.owner,gas:500000000}, (error, result) => {
                 callback(error, payload);
             });
     }

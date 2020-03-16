@@ -52,7 +52,7 @@ import './flightsurety.css';
                 }else {
                         contract.isAirlineRegistered(airlineAddress,(e, r)=>{
                             console.log('isAirlineRegistered:', r);
-                            display('Airlines', '', [ { label: 'Airline Address', error: e, value: airlineAddress}, { label: 'Action', error: e, value: r? 'Registered': 'Not Registered (multi-party consensus of 50% is required)'} ]);
+                            display('Airlines', '', [ { label: 'Airline Address', error: e, value: airlineAddress}, { label: 'Result', error: e, value: r? 'Registered': 'Not Registered (multi-party consensus of 50% is required)'} ]);
                     });
                 }
             });
@@ -70,7 +70,7 @@ import './flightsurety.css';
                 }else {
                     contract.isAirlineActive(callerAddress,(e, r)=>{
                         console.log('isAirlineActive:', r);
-                        display('Airlines', '', [ { label: 'Airline Address', error: e, value: callerAddress}, { label: 'Action', error: e, value: 'Funded'} ]);
+                        display('Airlines', '', [ { label: 'Airline Address', error: e, value: callerAddress}, { label: 'Result', error: e, value: 'Funded'} ]);
                     });
                 }
 
@@ -85,11 +85,11 @@ import './flightsurety.css';
                 console.log('registerFlight:', error,result);
                 let des = flightTimestamp + '|' + airlineAddress;
                 if(error){
-                    display('Flights', 'Register flight', [ { label: des, error: error} ]);
+                    display('Flights', 'Register flight', [ { label: 'Flight Info', value:des}, { label: 'Error', error: error} ]);
                 }else {
                     contract.isFlightRegistered(airlineAddress, flightTimestamp,(e, r)=>{
                         console.log('isFlightRegistered:', r);
-                        display('Flights', 'Register flight', [{ label: 'Flight Info', error: e, value:des},  { label: 'Action', error: e, value: 'Registered'} ]);
+                        display('Flights', 'Register flight', [{ label: 'Flight Info', error: e, value:des},  { label: 'Result', error: e, value: 'Registered'} ]);
                     });
                 }
             });
@@ -106,7 +106,7 @@ import './flightsurety.css';
             contract.buyInsurance(airlineAddress, flightTimestamp, amount, passengerAddress,(error, result) => {
                 console.log('buyInsurance:', error,result);
                 if(error){
-                    display('Passengers', 'Buy insurance', [ { label: des, error: error} ]);
+                    display('Passengers', 'Buy insurance', [ { label: 'Flight Info', value:des}, { label: 'Error', error: error} ]);
                 }else {
                     contract.insuranceInfo(airlineAddress, flightTimestamp,passengerAddress, (e, r)=>{
                         console.log('insuranceInfo:', r);
