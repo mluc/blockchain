@@ -22,24 +22,6 @@ const statusCodeToString = {
         populatePassengers(contract.passengers);
         populateFlightTimeStamp(contract.flights, contract.timestamps);
 
-        display('Owner', '', [ { label: 'Address', error: null, value: contract.owner} ]);
-
-        display('Airlines', 'Addresses', [
-            {label: 'Airline1', error: null, value: contract.airlines[0] + ' (Registered)'},
-            {label: 'Airline2', error: null, value: contract.airlines[1]},
-            {label: 'Airline3', error: null, value: contract.airlines[2]},
-            {label: 'Airline4', error: null, value: contract.airlines[3]},
-            {label: 'Airline5', error: null, value:contract.airlines[4]},
-            ]);
-
-        display('Passengers', 'Addresses', [
-            {label: 'Passenger1', error: null, value: contract.passengers[0]},
-            {label: 'Passenger2', error: null, value: contract.passengers[1]},
-            {label: 'Passenger3', error: null, value: contract.passengers[2]},
-            {label: 'Passenger4', error: null, value: contract.passengers[3]},
-            {label: 'Passenger5', error: null, value: contract.passengers[4]},
-        ]);
-
         contract.authorizeContract((error, result) => {
             console.log('authorizeContract:', error,result);
             contract.isOperational((e, r) => {
