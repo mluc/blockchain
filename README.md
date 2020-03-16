@@ -1,6 +1,7 @@
 # FlightSurety
 
 ## Github link:
+- https://github.com/mluc/blockchain
 
 ## Setup Ganache GUI:
 - HTTP://127.0.0.1:7545
