@@ -52,7 +52,7 @@ import './flightsurety.css';
                 }else {
                         contract.isAirlineRegistered(airlineAddress,(e, r)=>{
                             console.log('isAirlineRegistered:', r);
-                            display('Airlines', '', [ { label: 'Airline Address', error: e, value: airlineAddress}, { label: 'Action', error: e, value: 'Registered'} ]);
+                            display('Airlines', '', [ { label: 'Airline Address', error: e, value: airlineAddress}, { label: 'Action', error: e, value: r? 'Registered': 'Not Registered (multi-party consensus of 50% is required)'} ]);
                     });
                 }
             });

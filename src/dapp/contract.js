@@ -91,7 +91,7 @@ export default class Contract {
         };
         self.flightSuretyApp.methods
             .registerAirline(payload.airlineAddress)
-            .send({ from: callerAddress}, (error, result) => {
+            .send({ from: callerAddress, gas:500000000}, (error, result) => {
                 callback(error, payload);
             });
     }
