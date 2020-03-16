@@ -116,13 +116,22 @@ import './flightsurety.css';
             });
         })
 
-        // User-submitted transaction
+        // oracle
         DOM.elid('submit-oracle').addEventListener('click', () => {
-            let flight = DOM.elid('flight-number').value;
-            // Write transaction
-            contract.fetchFlightStatus(flight, (error, result) => {
+            let flightTimestamp = DOM.elid('fetch-flight').value;
+            let airlineAddress = DOM.elid('fetch-airline-address').value;
+            contract.fetchFlightStatus(airlineAddress, flightTimestamp, (error, result) => {
                 console.log(error,result);
-                display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+                if(error){
+                    display('Oracles', 'Fetch Flight Status', [ { label: 'Error', error: error} ]);
+                }else {
+                    display('Oracles', 'Fetch Flight Status', [ { label: 'Flight | Timestamp', value: result.flight + ' | ' + result.timestamp} ]);
+                    //
+
+
+
+
+                }
             });
         })
     
@@ -157,6 +166,8 @@ function populateAirlines(airlines) {
     populate(displayDiv);
     displayDiv = DOM.elid("insurance-airline-addresses");
     populate(displayDiv);
+    displayDiv = DOM.elid("fetch-airline-address");
+    populate(displayDiv);
 
     function populate(displayDiv) {
         for (var i = 0; i < airlines.length; i++) {
@@ -186,6 +197,8 @@ function populatePassengers(passengers) {
 
 function populateFlightTimeStamp(flights) {
     let displayDiv = DOM.elid("flights");
+    populate(displayDiv, flights);
+    displayDiv = DOM.elid("fetch-flight");
     populate(displayDiv, flights);
 
     function populate(displayDiv, items) {
