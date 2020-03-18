@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
-import 'openzeppelin-solidity/contracts/utils/Address.sol';
-import 'openzeppelin-solidity/contracts/drafts/Counters.sol';
+import 'openzeppelin-solidity/contracts/utils/Address.sol'; // TODO ml: check if the address is contract or individual
+import 'openzeppelin-solidity/contracts/drafts/Counters.sol'; // TODO ml: protect overflow for incrementing / decrementing
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 import 'openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol';
 import "./Oraclize.sol";
@@ -64,7 +64,7 @@ contract ERC165 {
     }
 }
 
-contract ERC721 is Pausable, ERC165 {
+contract ERC721 is Pausable, ERC165 { //TODO ml: create Pausable contract
 
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
@@ -90,7 +90,7 @@ contract ERC721 is Pausable, ERC165 {
     // IMPORTANT: this mapping uses Counters lib which is used to protect overflow when incrementing/decrementing a uint
     // use the following functions when interacting with Counters: increment(), decrement(), and current() to get the value
     // see: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/drafts/Counters.sol
-    mapping (address => Counters.Counter) private _ownedTokensCount;
+    mapping (address => Counters.Counter) private _ownedTokensCount; //TODO ml: use Counter lib instead of uint
 
     // Mapping from owner to operator approvals
     mapping (address => mapping (address => bool)) private _operatorApprovals;
@@ -241,7 +241,7 @@ contract ERC721 is Pausable, ERC165 {
     }
 }
 
-contract ERC721Enumerable is ERC165, ERC721 {
+contract ERC721Enumerable is ERC165, ERC721 { //TODO ml: ERC721Enumerable is for market place to gather the group listing of all your token in one shot
     // Mapping from owner to list of owned token IDs
     mapping(address => uint256[]) private _ownedTokens;
 
@@ -413,7 +413,7 @@ contract ERC721Enumerable is ERC165, ERC721 {
     }
 }
 
-contract ERC721Metadata is ERC721Enumerable, usingOraclize {
+contract ERC721Metadata is ERC721Enumerable, usingOraclize { //TODO ml: use Oraclize to concat strings
     
     // TODO: Create private vars for token _name, _symbol, and _baseTokenURI (string)
 
@@ -454,7 +454,7 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
 //  TODO's: Create CustomERC721Token contract that inherits from the ERC721Metadata contract. You can name this contract as you please
 //  1) Pass in appropriate values for the inherited ERC721Metadata contract
 //      - make the base token uri: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/
-//  2) create a public mint() that does the following:
+//  2) create a public mint() function that does the following:
 //      -can only be executed by the contract owner
 //      -takes in a 'to' address, tokenId, and tokenURI as parameters
 //      -returns a true boolean upon completion of the function
