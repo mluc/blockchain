@@ -1,8 +1,11 @@
 // migrating the appropriate contracts
-var SquareVerifier = artifacts.require("./SquareVerifier.sol");
-var SolnSquareVerifier = artifacts.require("./SolnSquareVerifier.sol");
+var ERC721Mintable = artifacts.require("./ERC721Mintable");
+//var SolnSquareVerifier = artifacts.require("./SolnSquareVerifier.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(SquareVerifier);
-  deployer.deploy(SolnSquareVerifier);
+  let name = ''
+  let symbol = ''
+  let baseTokenURI = 'https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/';
+  deployer.deploy(ERC721Mintable, name, symbol, baseTokenURI);
+  //deployer.deploy(SolnSquareVerifier);
 };
