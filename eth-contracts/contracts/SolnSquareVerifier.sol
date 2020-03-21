@@ -1,5 +1,24 @@
 pragma solidity >=0.4.21 <0.6.0;
 
+contract SolnSquareVerifier{
+    Verifier verifier;
+
+    constructor(address verifierAddress) public    {
+        verifier = Verifier(verifierAddress);
+    }
+
+
+}
+
+contract Verifier{
+    function verifyTx(
+        uint[2] memory a,
+        uint[2][2] memory b,
+        uint[2] memory c,
+        uint[2] memory input
+    ) public returns (bool r);
+}
+
 
 
 // TODO define a contract call to the zokrates generated solidity contract <Verifier> or <renamedVerifier>

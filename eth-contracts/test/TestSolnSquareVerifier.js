@@ -9,3 +9,25 @@
 //TODO ml: test you can mint s token using SolnSquareVerifier
 //TODO ml: reminder: in SolnSquareVerifier, you can only mint a token after you prove that it is actually verified using zokrates
 //TODO ml: only 2 test cases
+
+var Test = require('../config/testConfig.js');
+
+
+const  truffleAssert = require('truffle-assertions')
+
+contract('TestSolnSquareVerifier', accounts => {
+
+    describe('Test SolnSquareVerifier', function () {
+        var config;
+        beforeEach(async function () {
+            config = await Test.Config(accounts);
+
+
+        })
+
+        it('test something', async function () {
+
+        })
+
+    })
+})
