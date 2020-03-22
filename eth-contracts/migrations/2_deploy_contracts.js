@@ -2,6 +2,7 @@
 var ERC721Mintable = artifacts.require("./ERC721Mintable");
 var Verifier = artifacts.require("./Verifier");
 var SolnSquareVerifier = artifacts.require("./SolnSquareVerifier");
+const fs = require('fs');
 
 module.exports = function(deployer) {
   let name = 'name';
@@ -9,16 +10,9 @@ module.exports = function(deployer) {
   let baseTokenURI = 'https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/';
   deployer.deploy(ERC721Mintable, name, symbol, baseTokenURI);
 
-  // deployer.deploy(Verifier)
-  //     .then(()=>{
-  //       return deployer.deploy(SolnSquareVerifier, Verifier.address)
-  //
-  //     });
-
-
     deployer.deploy(Verifier)
         .then(() => {
-            return deployer.deploy(SolnSquareVerifier, Verifier.address)
+            return deployer.deploy(SolnSquareVerifier, name, symbol, baseTokenURI, Verifier.address)
                 .then(() => {
                     let config = {
                         localhost: {
@@ -27,8 +21,7 @@ module.exports = function(deployer) {
                             solAddress: SolnSquareVerifier.address
                         }
                     }
-                    // fs.writeFileSync(__dirname + '/../src/dapp/config.json',JSON.stringify(config, null, '\t'), 'utf-8');
-                    // fs.writeFileSync(__dirname + '/../src/server/config.json',JSON.stringify(config, null, '\t'), 'utf-8');
+                    fs.writeFileSync(__dirname + '/../src/config.json',JSON.stringify(config, null, '\t'), 'utf-8');
                 });
         });
 
