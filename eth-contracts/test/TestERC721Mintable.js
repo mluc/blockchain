@@ -1,4 +1,3 @@
-//TODO ml: first test
 const  truffleAssert = require('truffle-assertions')
 var ERC721Mintable = artifacts.require('ERC721Mintable');
 
@@ -27,7 +26,6 @@ contract('TestERC721Mintable', accounts => {
         })
 
         it('should return total supply', async function () {
-            //TODO ml: should return total supply of your ERC721 token successfully
             let supplyCount = await this.contract.totalSupply();
             assert.equal(Number(supplyCount), 5);
         })
@@ -41,9 +39,6 @@ contract('TestERC721Mintable', accounts => {
 
         // token uri should be complete i.e: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/1
         it('should return token uri', async function () {
-            //TODO ml: this uri is kept in the ERC721 token contract and this is where the metadata is being fetched from
-            //TODO ml: Ex: base uri: https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/
-            //TODO ml: Ex: token uri/id: 1
             let tokenURI1 = await this.contract.tokenURI(2);
             let tokenURI2 = await this.contract.tokenURI(3);
             assert.equal(tokenURI1, 'https://s3-us-west-2.amazonaws.com/udacity-blockchain/capstone/2');

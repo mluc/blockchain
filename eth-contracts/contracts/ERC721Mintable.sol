@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
-import 'openzeppelin-solidity/contracts/utils/Address.sol'; // TODO ml: check if the address is contract or individual
-import 'openzeppelin-solidity/contracts/drafts/Counters.sol'; // TODO ml: protect overflow for incrementing / decrementing
+import 'openzeppelin-solidity/contracts/utils/Address.sol';
+import 'openzeppelin-solidity/contracts/drafts/Counters.sol';
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 import 'openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol';
 import "./Oraclize.sol";
@@ -117,7 +117,7 @@ contract ERC165 {
     }
 }
 
-contract ERC721 is Pausable, ERC165 { //TODO ml: create Pausable contract
+contract ERC721 is Pausable, ERC165 {
 
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
@@ -143,7 +143,7 @@ contract ERC721 is Pausable, ERC165 { //TODO ml: create Pausable contract
     // IMPORTANT: this mapping uses Counters lib which is used to protect overflow when incrementing/decrementing a uint
     // use the following functions when interacting with Counters: increment(), decrement(), and current() to get the value
     // see: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/drafts/Counters.sol
-    mapping (address => Counters.Counter) private _ownedTokensCount; //TODO ml: use Counter lib instead of uint
+    mapping (address => Counters.Counter) private _ownedTokensCount;
 
     // Mapping from owner to operator approvals
     mapping (address => mapping (address => bool)) private _operatorApprovals;
@@ -255,11 +255,11 @@ contract ERC721 is Pausable, ERC165 { //TODO ml: create Pausable contract
         require(to != address(0),'given address is not valid');
   
         // TODO mint tokenId to given address & increase token count of owner
-        _tokenOwner[tokenId] = to; //TODO ml? mint tokenId to given address?
+        _tokenOwner[tokenId] = to;
         _ownedTokensCount[to].increment();
 
         // TODO emit Transfer event
-        emit Transfer(address(0), to, tokenId); //TODO ml? msg.sender?
+        emit Transfer(address(0), to, tokenId);
     }
 
     // @dev Internal function to transfer ownership of a given token ID to another address.
@@ -311,7 +311,7 @@ contract ERC721 is Pausable, ERC165 { //TODO ml: create Pausable contract
     }
 }
 
-contract ERC721Enumerable is ERC165, ERC721 { //TODO ml: ERC721Enumerable is for market place to gather the group listing of all your token in one shot
+contract ERC721Enumerable is ERC165, ERC721 {
     // Mapping from owner to list of owned token IDs
     mapping(address => uint256[]) private _ownedTokens;
 
@@ -377,7 +377,7 @@ contract ERC721Enumerable is ERC165, ERC721 { //TODO ml: ERC721Enumerable is for
      * @param to address to receive the ownership of the given token ID
      * @param tokenId uint256 ID of the token to be transferred
      */
-    function _transferFrom(address from, address to, uint256 tokenId) internal { //TODO ml? :As opposed to transferFrom, this imposes no restrictions on msg.sender. ??
+    function _transferFrom(address from, address to, uint256 tokenId) internal {
         super._transferFrom(from, to, tokenId);
 
         _removeTokenFromOwnerEnumeration(from, tokenId);
@@ -483,7 +483,7 @@ contract ERC721Enumerable is ERC165, ERC721 { //TODO ml: ERC721Enumerable is for
     }
 }
 
-contract ERC721Metadata is ERC721Enumerable, usingOraclize { //TODO ml: use Oraclize to concat strings
+contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     
     // TODO: Create private vars for token _name, _symbol, and _baseTokenURI (string)
     string private _name;
